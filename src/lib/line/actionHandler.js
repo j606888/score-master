@@ -1,17 +1,18 @@
 import saveSuccess from "./saveSuccess.json";
-import menu from "./menu.json";
 import prisma from "@/db";
 import { SOURCE_MAP } from "./parseMessage";
+import buildMessage, { TYPES } from "./buildMessage";
 
 export async function handleAction(text, source) {
   const lineSource = await findOrCreateLineSource(source);
   const room = await findOrCreateRoom(lineSource);
 
   const action = text.toLowerCase();
-  if (action === "save") {
+  if (action === "麻將") {
+    const message = await buildMessage(TYPES.MENU, room);
+    return message;
+  } else if (action === "save") {
     return saveSuccess;
-  } else if (action === "menu") {
-    return menu;
   } else if (action === "rooms") {
     const rooms = await fetchRooms();
     return {
