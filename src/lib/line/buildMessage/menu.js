@@ -44,7 +44,7 @@ const menuJSON = {
         "action": {
           "type": "uri",
           "label": "Add user",
-          "uri": "https://liff.line.me/2006394044-QyRpy3d3"
+          "uri": `https://liff.line.me/2006394044-QyRpy3d3?room_id=100`
         },
         "style": "primary",
         "color": "#16423C"
