@@ -22,7 +22,6 @@ export async function replyToMessage(replyToken, messages) {
 
   try {
     const response = await axios(webhookOptions);
-    console.log('Response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error:', error);
