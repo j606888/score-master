@@ -3,12 +3,12 @@ import { parseMessage } from "@/lib/line/parseMessage";
 import { handleAction } from "@/lib/line/actionHandler";
 
 export default async function handler(req, res) {
-  const { replyToken, message, messageType } = parseMessage(req.body);
+  const { replyToken, message, messageType, source } = parseMessage(req.body);
 
   if (messageType === "text") {
-    
+    const handleActionResponse = await handleAction(message, source);
     const messages = [
-      handleAction(message)
+      handleActionResponse
     ]
 
 
