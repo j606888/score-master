@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ar_internal_metadata {
+  key        String   @id @db.VarChar
+  value      String?  @db.VarChar
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+}
+
+model games {
+  id          BigInt    @id @default(autoincrement())
+  room_id     Int?
+  recorded_at DateTime? @db.Timestamp(6)
+  created_at  DateTime  @db.Timestamp(6)
+  updated_at  DateTime  @db.Timestamp(6)
+}
+
+model line_sources {
+  id          BigInt   @id @default(autoincrement())
+  source_type Int?
+  source_id   String?  @db.VarChar
+  room_id     Int?
+  created_at  DateTime @db.Timestamp(6)
+  updated_at  DateTime @db.Timestamp(6)
+}
+
+model players {
+  id         BigInt   @id @default(autoincrement())
+  name       String?  @db.VarChar
+  room_id    Int?
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+  gian_count Int?     @default(0)
+}
+
+model records {
+  id         BigInt   @id @default(autoincrement())
+  score      Int?
+  game_id    Int?
+  player_id  Int?
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+}
+
+model room_maps {
+  id             BigInt   @id @default(autoincrement())
+  line_source_id Int?
+  room_id        Int?
+  created_at     DateTime @db.Timestamp(6)
+  updated_at     DateTime @db.Timestamp(6)
+}
+
+model rooms {
+  id         BigInt   @id @default(autoincrement())
+  name       String?  @db.VarChar
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+}
+
+model schema_migrations {
+  version String @id @db.VarChar
+}
