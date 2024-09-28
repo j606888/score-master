@@ -13,6 +13,9 @@ export default async function handler(req, res) {
         },
         include: {
           records: true
+        },
+        orderBy: {
+          id: 'desc'
         }
       });
       const serializedPlayers = players.map(player => ({
@@ -29,7 +32,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     // Handle POST request: Create a new user
-    const { name } = JSON.parse(req.body);
+    const { name } = req.body
 
     // Basic validation
     if (!name) {
@@ -46,11 +49,13 @@ export default async function handler(req, res) {
         },
       });
 
-      res.status(201).json({ player: {
-        ...newUser,
-        id: Number(newUser.id),
-        gian_count: Number(newUser.gian_count)
-      } });
+      res.status(201).json({
+        player: {
+          ...newUser,
+          id: Number(newUser.id),
+          gian_count: Number(newUser.gian_count)
+        }
+      });
     } catch (error) {
       console.error('Error creating user:', error);
       res.status(500).json({ error: 'Failed to create user' });
