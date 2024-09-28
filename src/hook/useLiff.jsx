@@ -17,4 +17,22 @@ export default function useLiff() {
         console.error(error);
       });
   }, []);
+
+  const sendMessage = async (text) => {
+    await liff.sendMessages([
+      {
+        type: "text",
+        text,
+      }
+    ])
+  }
+
+  const closeWindow = () => {
+    liff.closeWindow()
+  }
+
+  return {
+    sendMessage,
+    closeWindow,
+  }
 }

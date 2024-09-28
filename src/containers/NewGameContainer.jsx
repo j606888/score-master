@@ -2,14 +2,13 @@ import { TextField, Button } from "@mui/material";
 import styled from "styled-components";
 import { useState } from "react";
 import useSWR from 'swr';
-import liff from "@line/liff";
 import useLiff from "@/hook/useLiff";
 
 const NewGameContainer = ({ room_id }) => {
   const fetcher = (url) => fetch(url).then((res) => res.json());
-  const { data, isLoading, error, mutate } = useSWR(room_id ? `/api/rooms/${room_id}/players` : null, fetcher);
+  const { data, isLoading } = useSWR(room_id ? `/api/rooms/${room_id}/players` : null, fetcher);
   const [playerScores, setPlayerScores] = useState({});
-  useLiff()
+  const { sendMessage, closeWindow } = useLiff()
 
   const handleScoreChange = (playerId, score) => {
     setPlayerScores(prevScores => ({
@@ -17,21 +16,6 @@ const NewGameContainer = ({ room_id }) => {
       [playerId]: score
     }));
   };
-
-  const handleClose = async () => {
-    try {
-      await liff
-        .sendMessages([
-          {
-            type: "text",
-            text: "紀錄成功",
-          },
-        ])
-    } catch(err) {
-      console.log("error", err);
-    }
-    liff.closeWindow()
-  }
 
   const handleSubmit = async () => {
     // Prepare the data for the API call
@@ -61,11 +45,15 @@ const NewGameContainer = ({ room_id }) => {
       setPlayerScores({});
 
       // Optionally, refresh the player data
-      mutate();
+      
     } catch (error) {
       console.error('Error submitting game:', error);
       // Handle the error (e.g., show an error message to the user)
     }
+
+    await sendMessage("紀錄成功")
+    await sendMessage("麻將")
+    closeWindow()
   }
 
   if (isLoading) {
@@ -90,7 +78,6 @@ const NewGameContainer = ({ room_id }) => {
     </div>
     <div className='total-score'>
       Total: {Object.values(playerScores).reduce((sum, score) => sum + Number(score || 0), 0)}
-      <Button variant='contained' onClick={handleClose}>Close</Button>
       <Button variant='contained' onClick={handleSubmit}>送出</Button>
     </div>
   </Container>;

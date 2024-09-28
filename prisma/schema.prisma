@@ -16,10 +16,13 @@ model ar_internal_metadata {
 
 model Game {
   id          BigInt    @id @default(autoincrement())
-  room_id     Int?
+  room_id     BigInt?
   recorded_at DateTime? @db.Timestamp(6)
   created_at  DateTime  @db.Timestamp(6)
   updated_at  DateTime  @db.Timestamp(6)
+
+  room        Room? @relation(fields: [room_id], references: [id])
+  records     Record[]
 
   @@map("games")
 }
@@ -51,12 +54,13 @@ model Player {
 model Record {
   id         BigInt   @id @default(autoincrement())
   score      Int?
-  game_id    Int?
+  game_id    BigInt?
   player_id  BigInt?
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
 
   player     Player?  @relation(fields: [player_id], references: [id])
+  game       Game?    @relation(fields: [game_id], references: [id])
 
   @@map("records")
 }
@@ -76,6 +80,8 @@ model Room {
   name       String?  @db.VarChar
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
+
+  games Game[]
 
   @@map("rooms")
 }

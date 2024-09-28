@@ -1,7 +1,6 @@
 import prisma from "@/db";
 
 export default async function menu(room) {
-  console.log(room)
   const players = await prisma.player.findMany({
     where: {
       room_id: Number(room.id)
@@ -46,19 +45,19 @@ export default async function menu(room) {
   //   }
   // }
 
-  console.log('playerList', JSON.stringify(playerList))
 
   const addUserUrl = `https://liff.line.me/2006394044-QyRpy3d3/rooms/${room.id}/players`
+  const newGameUrl = `https://liff.line.me/2006394044-QyRpy3d3/rooms/${room.id}/new-game`
 
   const menuJSONWithRoomName = { ...menuJSON }
   menuJSONWithRoomName.contents.header.contents[0].text = room.name;
   menuJSONWithRoomName.contents.header.contents[1].action.uri = addUserUrl
+  menuJSONWithRoomName.contents.header.contents[2].action.uri = newGameUrl
 
   if (playerList.length > 0) {
     menuJSONWithRoomName.contents.body.contents[0].contents = [...menuJSONWithRoomName.contents.body.contents[0].contents, ...playerList]
   }
 
-  // console.log(JSON.stringify(menuJSONWithRoomName.contents.body.contents[0].contents))
   return menuJSONWithRoomName;
 }
 

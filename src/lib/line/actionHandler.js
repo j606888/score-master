@@ -1,4 +1,3 @@
-import saveSuccess from "./saveSuccess.json";
 import prisma from "@/db";
 import { SOURCE_MAP } from "./parseMessage";
 import buildMessage, { TYPES } from "./buildMessage";
@@ -8,11 +7,12 @@ export async function handleAction(text, source) {
   const room = await findOrCreateRoom(lineSource);
 
   const action = text.toLowerCase();
-  if (action === "go") {
+  if (action === "麻將") {
     const message = await buildMessage(TYPES.MENU, room);
     return message;
-  } else if (action === "save") {
-    return saveSuccess;
+  } else if (action === "紀錄成功") {
+    const message = await buildMessage(TYPES.SAVE, room)
+    return message
   } else if (action === "rooms") {
     const rooms = await fetchRooms();
     return {
