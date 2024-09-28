@@ -1,5 +1,7 @@
 import prisma from "@/db";
 
+const LIFF_ID = process.env.LINE_LIFF_ID
+
 export default async function menu(room) {
   const players = await prisma.player.findMany({
     where: {
@@ -10,8 +12,8 @@ export default async function menu(room) {
     }
   })
 
-  const addUserUrl = `https://liff.line.me/2006394044-QyRpy3d3/rooms/${room.id}/players/new`
-  const newGameUrl = `https://liff.line.me/2006394044-QyRpy3d3/rooms/${room.id}/games/new`
+  const addUserUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/players/new`
+  const newGameUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games/new`
 
   if (players.length === 0) {
     return {
