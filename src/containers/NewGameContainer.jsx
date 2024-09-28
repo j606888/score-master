@@ -5,13 +5,16 @@ import useSWR from "swr";
 import useLiff from "@/hooks/useLiff";
 import Head from "next/head";
 import { createGame } from "@/lib/api/games";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 const NewGameContainer = ({ room_id }) => {
-  const { data, isLoading } = useSWR(
+  const { data, isLoading: isPlayersLoading } = useSWR(
     room_id ? `/api/rooms/${room_id}/players` : null
   );
   const [playerScores, setPlayerScores] = useState({});
   const { sendMessage, closeWindow } = useLiff();
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleScoreChange = (playerId, score) => {
     setPlayerScores((prevScores) => ({
@@ -33,6 +36,7 @@ const NewGameContainer = ({ room_id }) => {
   }, [playerScores]);
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     const records = Object.entries(playerScores).map(([playerId, score]) => ({
       player_id: Number(playerId),
       score: Number(score) || 0,
@@ -40,7 +44,6 @@ const NewGameContainer = ({ room_id }) => {
 
     try {
       await createGame(room_id, records)
-      setPlayerScores({});
       await sendMessage("紀錄成功");
       await sendMessage("麻將");
       closeWindow();
@@ -49,8 +52,8 @@ const NewGameContainer = ({ room_id }) => {
     }
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isPlayersLoading) {
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -81,7 +84,7 @@ const NewGameContainer = ({ room_id }) => {
           <span>
             總額: {totalScore}
           </span>
-          <Button variant="contained" onClick={handleSubmit} disabled={hasNonNumberScore}>
+          <Button variant="contained" onClick={handleSubmit} disabled={hasNonNumberScore || isLoading}>
             送出
           </Button>
         </div>

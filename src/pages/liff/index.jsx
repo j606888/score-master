@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import liff from "@line/liff";
 import styled from 'styled-components'
 import CircularProgress from '@mui/material/CircularProgress';
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 const LiffDemo = () => {
 
@@ -30,9 +31,7 @@ const LiffDemo = () => {
       <Head>
         <title>十一萬運作中</title>
       </Head>
-      <Container>
-        <CircularProgress size={64} />
-      </Container>
+      <LoadingSkeleton />
     </>
   );
 };

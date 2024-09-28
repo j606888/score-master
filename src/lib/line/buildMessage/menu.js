@@ -21,7 +21,12 @@ export default async function menu(room) {
     }
   }
 
-  const playerList = players.map(player => playerBlock(player))
+  const playersWithTotalScore = players.map(player => ({
+    ...player,
+    totalScore: player.records.reduce((sum, record) => sum + record.score, 0)
+  }));
+  const sortedPlayers = playersWithTotalScore.sort((a, b) => b.totalScore - a.totalScore);
+  const playerList = sortedPlayers.map(player => playerBlock(player))
   return menuJSON(room, playerList, addUserUrl, newGameUrl);
 }
 
@@ -50,18 +55,7 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl) {
             "flex": 3,
             "action": {
               "type": "uri",
-              "label": "User",
-              "uri": addUserUrl
-            },
-            "style": "primary",
-            "color": "#16423C"
-          },
-          {
-            "type": "button",
-            "flex": 3,
-            "action": {
-              "type": "uri",
-              "label": "Game",
+              "label": "紀錄",
               "uri": newGameUrl
             },
             "style": "primary",
@@ -107,6 +101,43 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl) {
             ]
           }
         ]
+      },
+      "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "separator",
+            
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "margin": "md",
+            "contents": [
+              {
+                "type": "text",
+                "text": "新增玩家",
+                "align": "center",
+                "color": "#16423C",
+                "action": {
+                  "type": "uri",
+                  "uri": addUserUrl
+                }
+              },
+              {
+                "type": "text",
+                "text": "查看積分",
+                "align": "center",
+                "color": "#16423C",
+                "action": {
+                  "type": "uri",
+                  "uri": addUserUrl
+                }
+              },
+            ]
+          }
+        ],
       }
     }
   }
@@ -133,7 +164,7 @@ function playerBlock(player) {
       },
       {
         "type": "text",
-        "text": String(player.records.reduce((sum, record) => sum + (record.score || 0), 0)),
+        "text": String(player.totalScore),
         "align": "end",
         "flex": 3
       }

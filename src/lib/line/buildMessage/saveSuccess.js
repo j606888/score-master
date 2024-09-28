@@ -33,7 +33,9 @@ export default async function saveSuccess(room) {
     hour12: true
   });
 
-  const playerRecords = lastGame.records.map(record => ({
+  const playerRecords = lastGame.records
+    .sort((a, b) => b.score - a.score)
+    .map(record => ({
     type: "box",
     layout: "horizontal",
     contents: [

@@ -5,6 +5,7 @@ import useSWR from "swr"
 import FaceIcon from "@mui/icons-material/Face"
 import Head from "next/head"
 import { addPlayer } from "@/lib/api/players"
+import LoadingSkeleton from "@/components/LoadingSkeleton"
 
 const AddPlayerContainer = ({ room_id }) => {
   const [playerName, setPlayerName] = useState("")
@@ -22,7 +23,7 @@ const AddPlayerContainer = ({ room_id }) => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <LoadingSkeleton />
   }
 
   return (
