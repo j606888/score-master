@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { records } = req.body
 
-    const game = await prisma.games.create({
+    const game = await prisma.game.create({
       data: {
         room_id: Number(room_id),
         recorded_at: new Date(),
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
     try {
       const createdRecords = await Promise.all(records.map(async (record) => {
-        return await prisma.records.create({
+        return await prisma.record.create({
           data: {
             game_id: Number(game.id),
             player_id: Number(record.player_id),

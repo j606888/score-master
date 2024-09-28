@@ -14,54 +14,66 @@ model ar_internal_metadata {
   updated_at DateTime @db.Timestamp(6)
 }
 
-model games {
+model Game {
   id          BigInt    @id @default(autoincrement())
   room_id     Int?
   recorded_at DateTime? @db.Timestamp(6)
   created_at  DateTime  @db.Timestamp(6)
   updated_at  DateTime  @db.Timestamp(6)
+
+  @@map("games")
 }
 
-model line_sources {
+model LineSource {
   id          BigInt   @id @default(autoincrement())
   source_type Int?
   source_id   String?  @db.VarChar
   room_id     Int?
   created_at  DateTime @db.Timestamp(6)
   updated_at  DateTime @db.Timestamp(6)
+
+  @@map("line_sources")
 }
 
-model players {
+model Player {
   id         BigInt   @id @default(autoincrement())
   name       String?  @db.VarChar
   room_id    Int?
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
   gian_count Int?     @default(0)
+
+  @@map("players")
 }
 
-model records {
+model Record {
   id         BigInt   @id @default(autoincrement())
   score      Int?
   game_id    Int?
   player_id  Int?
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
+
+  @@map("records")
 }
 
-model room_maps {
+model RoomMap {
   id             BigInt   @id @default(autoincrement())
   line_source_id Int?
   room_id        Int?
   created_at     DateTime @db.Timestamp(6)
   updated_at     DateTime @db.Timestamp(6)
+
+  @@map("room_map")
 }
 
-model rooms {
+model Room {
   id         BigInt   @id @default(autoincrement())
   name       String?  @db.VarChar
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
+
+  @@map("rooms")
 }
 
 model schema_migrations {

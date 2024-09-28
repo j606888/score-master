@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     // Handle GET request: Fetch all users
     try {
-      const players = await prisma.players.findMany({
+      const players = await prisma.player.findMany({
         where: {
           room_id: Number(room_id)
         }
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const newUser = await prisma.players.create({
+      const newUser = await prisma.player.create({
         data: {
           name,
           room_id: Number(room_id),

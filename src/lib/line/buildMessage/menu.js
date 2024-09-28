@@ -2,7 +2,7 @@ import prisma from "@/db";
 
 export default async function menu(room) {
   console.log(room)
-  const players = await prisma.players.findMany({
+  const players = await prisma.player.findMany({
     where: {
       room_id: Number(room.id)
     }
