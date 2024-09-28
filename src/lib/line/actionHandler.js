@@ -13,11 +13,6 @@ export async function handleAction(text, source) {
   } else if (action === "紀錄成功") {
     const message = await buildMessage(TYPES.SAVE, room)
     return message
-  } else {
-    return {
-      type: "text",
-      text: "I'm sorry, I didn't understand that."
-    };
   }
 }
 
