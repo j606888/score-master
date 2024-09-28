@@ -1,14 +1,14 @@
 export const SOURCE_MAP = {
   user: {
-    sourceType: 1,
+    sourceType: 0,
     sourceKey: 'userId'
   },
   group: {
-    sourceType: 2,
+    sourceType: 1,
     sourceKey: 'groupId'
   },
   room: {
-    sourceType: 3,
+    sourceType: 2,
     sourceKey: 'roomId'
   }
 }
