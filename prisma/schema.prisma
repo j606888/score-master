@@ -73,7 +73,7 @@ model RoomMap {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
-  @@map("room_map")
+  @@map("room_maps")
 }
 
 model Room {
