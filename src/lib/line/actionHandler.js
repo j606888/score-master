@@ -13,12 +13,6 @@ export async function handleAction(text, source) {
   } else if (action === "紀錄成功") {
     const message = await buildMessage(TYPES.SAVE, room)
     return message
-  } else if (action === "rooms") {
-    const rooms = await fetchRooms();
-    return {
-      type: "text",
-      text: "wait for users"
-    }
   } else {
     return {
       type: "text",
@@ -32,7 +26,6 @@ async function findOrCreateLineSource(source) {
   const sourceMap = SOURCE_MAP[source.type];
   let lineSource
 
-  
   lineSource = await prisma.lineSource.findFirst({
     where: {
       source_type: sourceMap.sourceType,
@@ -85,10 +78,4 @@ async function findOrCreateRoom(lineSource) {
   }
 
   return room
-}
-
-async function fetchRooms() {
-  const rooms = await prisma.rooms.findMany();
-
-  console.log("rooms", rooms);
 }
