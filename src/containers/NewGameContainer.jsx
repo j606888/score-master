@@ -2,7 +2,7 @@ import { TextField, Button } from "@mui/material";
 import styled from "styled-components";
 import { useState, useMemo } from "react";
 import useSWR from "swr";
-import useLiff from "@/hook/useLiff";
+import useLiff from "@/hooks/useLiff";
 import Head from "next/head";
 import { createGame } from "@/lib/api/games";
 

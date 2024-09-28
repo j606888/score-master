@@ -10,16 +10,16 @@ datasource db {
 model ar_internal_metadata {
   key        String   @id @db.VarChar
   value      String?  @db.VarChar
-  created_at DateTime @db.Timestamp(6)
-  updated_at DateTime @db.Timestamp(6)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Game {
   id          BigInt    @id @default(autoincrement())
   room_id     BigInt?
   recorded_at DateTime? @db.Timestamp(6)
-  created_at  DateTime  @db.Timestamp(6)
-  updated_at  DateTime  @db.Timestamp(6)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
 
   room        Room? @relation(fields: [room_id], references: [id])
   records     Record[]
@@ -32,8 +32,8 @@ model LineSource {
   source_type Int?
   source_id   String?  @db.VarChar
   room_id     Int?
-  created_at  DateTime @db.Timestamp(6)
-  updated_at  DateTime @db.Timestamp(6)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   @@map("line_sources")
 }
@@ -42,9 +42,9 @@ model Player {
   id         BigInt   @id @default(autoincrement())
   name       String?  @db.VarChar
   room_id    BigInt?
-  created_at DateTime @db.Timestamp(6)
-  updated_at DateTime @db.Timestamp(6)
   gian_count Int?     @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   room       Room?    @relation(fields: [room_id], references: [id])
   records    Record[]
@@ -57,8 +57,8 @@ model Record {
   score      Int?
   game_id    BigInt?
   player_id  BigInt?
-  created_at DateTime @db.Timestamp(6)
-  updated_at DateTime @db.Timestamp(6)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   player     Player?  @relation(fields: [player_id], references: [id])
   game       Game?    @relation(fields: [game_id], references: [id])
@@ -70,8 +70,8 @@ model RoomMap {
   id             BigInt   @id @default(autoincrement())
   line_source_id Int?
   room_id        Int?
-  created_at     DateTime @db.Timestamp(6)
-  updated_at     DateTime @db.Timestamp(6)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
   @@map("room_map")
 }
@@ -79,8 +79,8 @@ model RoomMap {
 model Room {
   id         BigInt   @id @default(autoincrement())
   name       String?  @db.VarChar
-  created_at DateTime @db.Timestamp(6)
-  updated_at DateTime @db.Timestamp(6)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   games      Game[]
   players    Player[]

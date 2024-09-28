@@ -8,8 +8,8 @@ export async function getServerSideProps(context) {
   };
 }
 
-const PlayersPage = ({ room_id }) => {
+const NewPlayerPage = ({ room_id }) => {
   return <AddPlayerContainer room_id={room_id} />;
 };
 
-export default PlayersPage;
+export default NewPlayerPage;

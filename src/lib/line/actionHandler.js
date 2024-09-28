@@ -45,8 +45,6 @@ async function findOrCreateLineSource(source) {
       data: {
         source_type: sourceMap.sourceType,
         source_id: source[sourceMap.sourceKey],
-        created_at: new Date(),
-        updated_at: new Date()
       }
     });
   }
@@ -66,8 +64,6 @@ async function findOrCreateRoom(lineSource) {
     room = await prisma.room.create({
       data: {
         name: '麻將小房間',
-        created_at: new Date(),
-        updated_at: new Date()
       }
     });
 
@@ -75,8 +71,6 @@ async function findOrCreateRoom(lineSource) {
       data: {
         room_id: Number(room.id),
         line_source_id: Number(lineSource.id),
-        created_at: new Date(),
-        updated_at: new Date()
       }
     })
 

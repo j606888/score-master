@@ -11,8 +11,6 @@ export default async function handler(req, res) {
       data: {
         room_id: Number(room_id),
         recorded_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
       }
     })
 
