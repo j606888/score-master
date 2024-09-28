@@ -1,20 +1,14 @@
-import { useRouter } from "next/router";
 import { TextField, Button } from "@mui/material";
 import styled from "styled-components";
 import { useState } from "react";
 import useSWR from 'swr';
 
-const Players = () => {
-  const router = useRouter();
-  const { room_id } = router.query;
+const AddPlayerContainer = ({ room_id }) => {
   const [playerName, setPlayerName] = useState('');
-  console.log({ room_id })
-
   const fetcher = (url) => fetch(url).then((res) => res.json());
 
-  const { data, isLoading, error } = useSWR(room_id ? `/api/rooms/${room_id}/players` : null, fetcher) ;
+  const { data, isLoading, error, mutate } = useSWR(room_id ? `/api/rooms/${room_id}/players` : null, fetcher) ;
 
-  console.log({ data, isLoading, error })
   const handleAddPlayer = async () => {
     const response = await fetch(`/api/rooms/${room_id}/players`, {
       method: 'POST',
@@ -23,6 +17,7 @@ const Players = () => {
     const data = await response.json();
     console.log('Player added', data);
     setPlayerName('');
+    mutate()
   }
 
   if (isLoading) {
@@ -43,4 +38,4 @@ const Container = styled.div`
   padding: 12px;
 `
 
-export default Players;
+export default AddPlayerContainer;

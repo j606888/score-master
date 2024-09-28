@@ -1,8 +1,8 @@
 import Head from "next/head";
 import React, { useEffect } from "react";
 import liff from "@line/liff";
-
-
+import styled from 'styled-components'
+import CircularProgress from '@mui/material/CircularProgress';
 
 const LiffDemo = () => {
 
@@ -28,11 +28,26 @@ const LiffDemo = () => {
   return (
     <>
       <Head>
-        <title>Liff Demo</title>
+        <title>十一萬運作中</title>
       </Head>
-      <div>Liff Demo</div>
+      <Container>
+        <CircularProgress size={64} />
+      </Container>
     </>
   );
 };
+
+const Container = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+`
 
 export default LiffDemo;

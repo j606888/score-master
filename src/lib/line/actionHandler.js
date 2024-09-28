@@ -8,7 +8,7 @@ export async function handleAction(text, source) {
   const room = await findOrCreateRoom(lineSource);
 
   const action = text.toLowerCase();
-  if (action === "麻將") {
+  if (action === "go") {
     const message = await buildMessage(TYPES.MENU, room);
     return message;
   } else if (action === "save") {
@@ -77,6 +77,15 @@ async function findOrCreateRoom(lineSource) {
         line_source_id: Number(lineSource.id),
         created_at: new Date(),
         updated_at: new Date()
+      }
+    })
+
+    await prisma.line_sources.update({
+      where: {
+        id: Number(lineSource.id)
+      },
+      data: {
+        room_id: Number(room.id)
       }
     })
   }

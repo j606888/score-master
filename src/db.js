@@ -1,5 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
+BigInt.prototype.toJSON = function() {       
+  return this.toString()
+}
+
 const prismaClientSingleton = () => {
   return new PrismaClient();
 }
