@@ -43,6 +43,8 @@ model Player {
   updated_at DateTime @db.Timestamp(6)
   gian_count Int?     @default(0)
 
+  records    Record[]
+
   @@map("players")
 }
 
@@ -50,9 +52,11 @@ model Record {
   id         BigInt   @id @default(autoincrement())
   score      Int?
   game_id    Int?
-  player_id  Int?
+  player_id  BigInt?
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
+
+  player     Player?  @relation(fields: [player_id], references: [id])
 
   @@map("records")
 }

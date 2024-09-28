@@ -5,17 +5,11 @@ export default async function menu(room) {
   const players = await prisma.player.findMany({
     where: {
       room_id: Number(room.id)
+    },
+    include: {
+      records: true
     }
   });
-  // const playerIds = players.map(player => Number(player.id))
-  // const records = await prisma.records.findMany({
-  //   where: {
-  //     player_id: playerIds
-  //   }
-  // })
-
-
-  
 
   const playerList = players.map(player => {
 
@@ -31,13 +25,13 @@ export default async function menu(room) {
         },
         {
           "type": "text",
-          "text": "0",
+          "text": String(player.gian_count),
           "align": "end",
           "flex": 3
         },
         {
           "type": "text",
-          "text": "0",
+          "text": String(player.records.reduce((sum, record) => sum + (record.score || 0), 0)),
           "align": "end",
           "flex": 3
         }

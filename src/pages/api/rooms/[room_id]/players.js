@@ -10,12 +10,17 @@ export default async function handler(req, res) {
       const players = await prisma.player.findMany({
         where: {
           room_id: Number(room_id)
+        },
+        include: {
+          records: true
         }
       });
       const serializedPlayers = players.map(player => ({
         ...player,
         id: Number(player.id),
-        gian_count: Number(player.gian_count)
+        gian_count: Number(player.gian_count),
+        total_score: player.records.reduce((sum, record) => sum + (record.score || 0), 0),
+        records: undefined // Remove records from the response
       }));
       res.status(200).json({ players: serializedPlayers });
     } catch (error) {

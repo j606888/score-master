@@ -29,6 +29,18 @@ export default async function handler(req, res) {
         });
       }));
 
+      // Update gian_count for all players in the records
+      await Promise.all(records.map(async (record) => {
+        await prisma.player.update({
+          where: { id: Number(record.player_id) },
+          data: {
+            gian_count: {
+              increment: 1
+            }
+          }
+        });
+      }));
+
       res.status(201).json({ message: 'Records created successfully', records: createdRecords });
     } catch (error) {
       console.error('Error creating records:', error);
