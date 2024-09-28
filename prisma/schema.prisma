@@ -41,11 +41,12 @@ model LineSource {
 model Player {
   id         BigInt   @id @default(autoincrement())
   name       String?  @db.VarChar
-  room_id    Int?
+  room_id    BigInt?
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
   gian_count Int?     @default(0)
 
+  room       Room?    @relation(fields: [room_id], references: [id])
   records    Record[]
 
   @@map("players")
@@ -81,7 +82,8 @@ model Room {
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
 
-  games Game[]
+  games      Game[]
+  players    Player[]
 
   @@map("rooms")
 }
