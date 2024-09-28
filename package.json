@@ -9,12 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@line/liff": "^2.24.0",
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^6.1.1",
     "@prisma/client": "^5.20.0",
     "axios": "^1.7.7",
     "next": "14.2.13",
     "prisma": "^5.20.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "styled-components": "^6.1.13",
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "eslint": "^8",

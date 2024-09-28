@@ -1,4 +1,3 @@
-import saveSuccess from "./saveSuccess.json";
 import prisma from "@/db";
 import { SOURCE_MAP } from "./parseMessage";
 import buildMessage, { TYPES } from "./buildMessage";
@@ -11,8 +10,9 @@ export async function handleAction(text, source) {
   if (action === "麻將") {
     const message = await buildMessage(TYPES.MENU, room);
     return message;
-  } else if (action === "save") {
-    return saveSuccess;
+  } else if (action === "紀錄成功") {
+    const message = await buildMessage(TYPES.SAVE, room)
+    return message
   } else if (action === "rooms") {
     const rooms = await fetchRooms();
     return {
@@ -33,7 +33,7 @@ async function findOrCreateLineSource(source) {
   let lineSource
 
   
-  lineSource = await prisma.line_sources.findFirst({
+  lineSource = await prisma.lineSource.findFirst({
     where: {
       source_type: sourceMap.sourceType,
       source_id: source[sourceMap.sourceKey]
@@ -41,7 +41,7 @@ async function findOrCreateLineSource(source) {
   });
 
   if (!lineSource) {
-    lineSource = await prisma.line_sources.create({
+    lineSource = await prisma.lineSource.create({
       data: {
         source_type: sourceMap.sourceType,
         source_id: source[sourceMap.sourceKey],
@@ -57,13 +57,13 @@ async function findOrCreateLineSource(source) {
 async function findOrCreateRoom(lineSource) {
   let room
   if (lineSource.room_id) {
-    room = await prisma.rooms.findFirst({
+    room = await prisma.room.findFirst({
       where: {
         id: lineSource.room_id
       }
     });
   } else {
-    room = await prisma.rooms.create({
+    room = await prisma.room.create({
       data: {
         name: '麻將小房間',
         created_at: new Date(),
@@ -71,12 +71,21 @@ async function findOrCreateRoom(lineSource) {
       }
     });
 
-    await prisma.room_maps.create({
+    await prisma.roomMap.create({
       data: {
         room_id: Number(room.id),
         line_source_id: Number(lineSource.id),
         created_at: new Date(),
         updated_at: new Date()
+      }
+    })
+
+    await prisma.lineSource.update({
+      where: {
+        id: Number(lineSource.id)
+      },
+      data: {
+        room_id: Number(room.id)
       }
     })
   }
