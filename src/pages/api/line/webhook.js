@@ -3,9 +3,6 @@ import { parseMessage } from "@/lib/line/parseMessage";
 import { handleAction } from "@/lib/line/actionHandler";
 
 export default async function handler(req, res) {
-  console.log("HI")
-  console.log(req.body)
-
   if (req.body.events.length === 0) {
     res.status(200).end();
     return;

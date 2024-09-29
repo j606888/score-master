@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import liff from "@line/liff";
 
-const LIFF_ID = process.env.LINE_LIFF_ID
+const LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID
 
 export default function useLiff() {
   useEffect(() => {

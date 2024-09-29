@@ -18,7 +18,7 @@ both file can be added to Vercel as `Environment Variables`
 
 `./env.local`
 LINE_ACCESS_TOKEN=
-LINE_LIFF_ID=
+NEXT_PUBLIC_LINE_LIFF_ID=
 
 `./env`
 DATABASE_URL=

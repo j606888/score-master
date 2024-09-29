@@ -4,11 +4,12 @@ import liff from "@line/liff";
 import styled from 'styled-components'
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 
-const LIFF_ID = process.env.LINE_LIFF_ID
+const LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID
 
 const LiffDemo = () => {
 
   useEffect(() => {
+    console.log('LIFF_ID', LIFF_ID)
     liff.init({
       liffId: LIFF_ID,
     }).then(() => {
