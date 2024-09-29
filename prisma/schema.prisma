@@ -48,7 +48,7 @@ model Player {
 
   room       Room?    @relation(fields: [room_id], references: [id])
   records    Record[]
-
+  draft_records DraftRecord[]
   @@map("players")
 }
 
@@ -84,8 +84,25 @@ model Room {
 
   games      Game[]
   players    Player[]
+  draft_records DraftRecord[]
 
   @@map("rooms")
+}
+
+model DraftRecord {
+  id         BigInt   @id @default(autoincrement())
+  player_id  BigInt
+  room_id    BigInt
+  score      Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  player    Player  @relation(fields: [player_id], references: [id])
+  room      Room    @relation(fields: [room_id], references: [id])
+
+  @@map("draft_records")
+  @@index([player_id])
+  @@index([room_id])
 }
 
 model schema_migrations {

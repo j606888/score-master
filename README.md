@@ -30,3 +30,9 @@ NEXT_PUBLIC_LINE_LIFF_ID=
 
 `./env`
 DATABASE_URL=
+
+## DATABASE
+
+When first time running with local database, run the following command to create tables
+
+`npx prisma migrate deploy`
