@@ -51,7 +51,8 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
             "gravity": "center",
             "size": "md",
             "flex": 4,
-            "text": room.name
+            "text": room.name,
+            "wrap": true,
           },
           {
             "type": "button",
@@ -87,7 +88,6 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
                   {
                     "type": "text",
                     "text": "出場數",
-                    "align": "end",
                     "flex": 3,
                     "color": "#6A9C89"
                   },
@@ -162,14 +162,13 @@ function playerBlock(player) {
       {
         "type": "text",
         "text": String(player.gian_count),
-        "align": "end",
         "flex": 3
       },
       {
         "type": "text",
         "text": String(player.totalScore),
+        "flex": 3,
         "align": "end",
-        "flex": 3
       }
     ]
   }
