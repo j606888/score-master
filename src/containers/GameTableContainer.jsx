@@ -19,7 +19,7 @@ function GamesTableContainer({ room_id }) {
           <TableRow>
             <TableCell>Date</TableCell>
             {headers.map((header) => (
-              <TableCell key={header.id} style={{ writingMode: 'vertical-rl', textOrientation: 'upright', whiteSpace: 'nowrap' }}>
+              <TableCell key={header.id}>
                 {header.label}
               </TableCell>
             ))}

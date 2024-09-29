@@ -2,6 +2,14 @@
 
 https://developers.line.biz/console/provider/1635530416
 
+## HOST
+
+preview
+https://score-master.vercel.app/
+
+production
+https://www.score-master.j606888.com/
+
 ## Deployment
 
 Deployed on Vercel
