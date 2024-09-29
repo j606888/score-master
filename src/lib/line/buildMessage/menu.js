@@ -51,7 +51,8 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
             "gravity": "center",
             "size": "md",
             "flex": 4,
-            "text": room.name
+            "text": room.name,
+            "wrap": true,
           },
           {
             "type": "button",
