@@ -162,13 +162,11 @@ function playerBlock(player) {
       {
         "type": "text",
         "text": String(player.gian_count),
-        "align": "end",
         "flex": 3
       },
       {
         "type": "text",
         "text": String(player.totalScore),
-        "align": "end",
         "flex": 3
       }
     ]
