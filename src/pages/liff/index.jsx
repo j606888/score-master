@@ -2,14 +2,16 @@ import Head from "next/head";
 import React, { useEffect } from "react";
 import liff from "@line/liff";
 import styled from 'styled-components'
-import CircularProgress from '@mui/material/CircularProgress';
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+
+const LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID
 
 const LiffDemo = () => {
 
   useEffect(() => {
+    console.log('LIFF_ID', LIFF_ID)
     liff.init({
-      liffId: "2006394044-QyRpy3d3",
+      liffId: LIFF_ID,
     }).then(() => {
       console.log("LIFF init succeeded");
       console.log(liff.getAppLanguage());

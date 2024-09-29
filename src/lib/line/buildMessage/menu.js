@@ -1,5 +1,7 @@
 import prisma from "@/db";
 
+const LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID
+
 export default async function menu(room) {
   const players = await prisma.player.findMany({
     where: {
@@ -10,8 +12,9 @@ export default async function menu(room) {
     }
   })
 
-  const addUserUrl = `https://liff.line.me/2006394044-QyRpy3d3/rooms/${room.id}/players/new`
-  const newGameUrl = `https://liff.line.me/2006394044-QyRpy3d3/rooms/${room.id}/games/new`
+  const addUserUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/players/new`
+  const newGameUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games/new`
+  const allGamesUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games`
 
   if (players.length === 0) {
     return {
@@ -27,10 +30,10 @@ export default async function menu(room) {
   }));
   const sortedPlayers = playersWithTotalScore.sort((a, b) => b.totalScore - a.totalScore);
   const playerList = sortedPlayers.map(player => playerBlock(player))
-  return menuJSON(room, playerList, addUserUrl, newGameUrl);
+  return menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl);
 }
 
-function menuJSON(room, playerList, addUserUrl, newGameUrl) {
+function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
   return {
     "type": "flex",
     "altText": "Menu",
@@ -132,7 +135,7 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl) {
                 "color": "#16423C",
                 "action": {
                   "type": "uri",
-                  "uri": addUserUrl
+                  "uri": allGamesUrl
                 }
               },
             ]
