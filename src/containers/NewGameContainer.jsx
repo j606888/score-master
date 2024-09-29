@@ -1,20 +1,27 @@
 import { TextField, Button } from "@mui/material";
 import styled from "styled-components";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import useSWR from "swr";
 import useLiff from "@/hooks/useLiff";
 import Head from "next/head";
-import { createGame } from "@/lib/api/games";
+import { createGame, syncDraft, deleteDraft } from "@/lib/api/games";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import Snackbar from '@mui/material/Snackbar';
 
 const NewGameContainer = ({ room_id }) => {
-  const { data, isLoading: isPlayersLoading } = useSWR(
-    room_id ? `/api/rooms/${room_id}/players` : null
-  );
+  const { data, isLoading: isPlayersLoading } = useSWR(`/api/rooms/${room_id}/players`)
+  const { data: draftData, isLoading: isDraftLoading } = useSWR(`/api/rooms/${room_id}/drafts`)
   const [playerScores, setPlayerScores] = useState({});
   const { sendMessage, closeWindow } = useLiff();
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    if (isLoading || isDraftLoading) return
+    if (draftData) {
+      setPlayerScores(draftData)
+    }
+  }, [draftData, isLoading, isDraftLoading]);
 
   const handleScoreChange = (playerId, score) => {
     setPlayerScores((prevScores) => ({
@@ -23,10 +30,30 @@ const NewGameContainer = ({ room_id }) => {
     }));
   };
 
+  useEffect(() => {
+    const debouncedSync = debounce(async () => {
+      if (playerScores === draftData) return
+      await syncDraft(room_id, playerScores)
+      setOpen(true)
+    }, 1500);
+
+    debouncedSync();
+
+    return () => debouncedSync.cancel();
+  }, [playerScores, room_id, draftData]);
+
+  const debounce = (func, delay) => {
+    let timeoutId;
+    const debouncedFunc = (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+    debouncedFunc.cancel = () => clearTimeout(timeoutId);
+    return debouncedFunc;
+  };
+
   const hasNonNumberScore = useMemo(() => {
     return Object.values(playerScores).some(score => {
-      console.log('score');
-      console.log(score);
       return isNaN(Number(score)) && score !== "";
     });
   }, [playerScores]);
@@ -36,23 +63,29 @@ const NewGameContainer = ({ room_id }) => {
   }, [playerScores]);
 
   const handleSubmit = async () => {
+    if (totalScore !== 0) {
+      const confirmMessage = `總分不為零 (${totalScore})，確定要提交嗎？`;
+      if (!confirm(confirmMessage)) return
+    }
     setIsLoading(true);
     const records = Object.entries(playerScores).map(([playerId, score]) => ({
       player_id: Number(playerId),
       score: Number(score) || 0,
     }));
 
-    try {
-      await createGame(room_id, records)
-      await sendMessage("紀錄成功");
-      await sendMessage("麻將");
-      closeWindow();
-    } catch (error) {
-      console.error("Error submitting game:", error);
-    }
+    await createGame(room_id, records)
+    await handleDeleteDraft()
+    await sendMessage("紀錄成功");
+    await sendMessage("麻將");
+    closeWindow();
   }
 
-  if (isPlayersLoading) {
+  const handleDeleteDraft = async () => {
+    await deleteDraft(room_id)
+    setPlayerScores({})
+  }
+
+  if (isPlayersLoading || isDraftLoading) {
     return <LoadingSkeleton />;
   }
 
@@ -84,11 +117,23 @@ const NewGameContainer = ({ room_id }) => {
           <span>
             總額: {totalScore}
           </span>
-          <Button variant="contained" onClick={handleSubmit} disabled={hasNonNumberScore || isLoading}>
-            送出
-          </Button>
+          <div className="button-group">
+            <Button variant="outlined" onClick={handleDeleteDraft}>
+              清空
+            </Button>
+            <Button variant="contained" onClick={handleSubmit} disabled={hasNonNumberScore || isLoading}>
+              送出
+            </Button>
+          </div>
         </div>
       </Container>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={open}
+        autoHideDuration={3000}
+        onClose={() => setOpen(false)}
+        message="同步成功"
+      />
     </>
   );
 };
@@ -126,6 +171,11 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+    }
 
     span {
       padding-left: 12px;
