@@ -17,22 +17,44 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { draftData } = req.body
+    const { player_id, score } = req.body
 
-    const records = Object.entries(draftData).map(([player_id, score]) => ({
-      player_id: +player_id,
-      room_id: +room_id,
-      score: +score
-    }))
-
-    await prisma.draftRecord.deleteMany({
+    const existingRecord = await prisma.draftRecord.findFirst({
       where: {
+        player_id: +player_id,
         room_id: +room_id
       }
     })
-    await prisma.draftRecord.createMany({
-      data: records
-    })
+
+    if (existingRecord) {
+      if (score === null) {
+        await prisma.draftRecord.delete({
+          where: {
+            id: existingRecord.id
+          }
+        })
+      } else {
+        await prisma.draftRecord.update({
+          where: {
+            id: existingRecord.id
+          },
+          data: {
+            score: +score
+          }
+        })
+      }
+    }
+
+    if (!existingRecord && score !== null) {
+      await prisma.draftRecord.create({
+        data: {
+          player_id: +player_id,
+          room_id: +room_id,
+          score: +score
+        }
+      })
+    }
+
     res.status(200).end()
   }
 

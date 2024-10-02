@@ -10,9 +10,9 @@ export const createGame = async (room_id, records) => {
   }
 }
 
-export const syncDraft = async (room_id, draftData) => {
+export const syncDraft = async (room_id, player_id, score) => {
   try {
-    await axiosClient.put(`/rooms/${room_id}/drafts`, { draftData })
+    await axiosClient.put(`/rooms/${room_id}/drafts`, { player_id, score })
   } catch (error) {
     console.error(error)
     throw error

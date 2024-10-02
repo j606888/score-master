@@ -1,20 +1,18 @@
 import { TextField, Button } from "@mui/material";
 import styled from "styled-components";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 import useLiff from "@/hooks/useLiff";
 import Head from "next/head";
 import { createGame, syncDraft, deleteDraft } from "@/lib/api/games";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-import Snackbar from '@mui/material/Snackbar';
 
 const NewGameContainer = ({ room_id }) => {
   const { data, isLoading: isPlayersLoading } = useSWR(`/api/rooms/${room_id}/players`)
-  const { data: draftData, isLoading: isDraftLoading } = useSWR(`/api/rooms/${room_id}/drafts`)
+  const { data: draftData, isLoading: isDraftLoading, mutate: mutateDraft } = useSWR(`/api/rooms/${room_id}/drafts`)
   const [playerScores, setPlayerScores] = useState({});
   const { sendMessage, closeWindow } = useLiff();
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (isLoading || isDraftLoading) return
@@ -23,34 +21,28 @@ const NewGameContainer = ({ room_id }) => {
     }
   }, [draftData, isLoading, isDraftLoading]);
 
+  const syncPlayerScore = useCallback(async(playerId, score) => {
+    const draftScore = score === "" ? null : Number(score); // Use null to delete the draft
+    await syncDraft(room_id, playerId, draftScore);
+    
+  }, [room_id]);
+
   const handleScoreChange = (playerId, score) => {
     setPlayerScores((prevScores) => ({
       ...prevScores,
       [playerId]: score,
     }));
+
+    syncPlayerScore(playerId, score)
   };
 
   useEffect(() => {
-    const debouncedSync = debounce(async () => {
-      if (playerScores === draftData) return
-      await syncDraft(room_id, playerScores)
-      setOpen(true)
-    }, 1500);
+    const intervalId = setInterval(async () => {
+      await mutateDraft();
+    }, 5000);
 
-    debouncedSync();
-
-    return () => debouncedSync.cancel();
-  }, [playerScores, room_id, draftData]);
-
-  const debounce = (func, delay) => {
-    let timeoutId;
-    const debouncedFunc = (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
-    debouncedFunc.cancel = () => clearTimeout(timeoutId);
-    return debouncedFunc;
-  };
+    return () => clearInterval(intervalId);
+  }, [mutateDraft]);
 
   const hasNonNumberScore = useMemo(() => {
     return Object.values(playerScores).some(score => {
@@ -127,13 +119,6 @@ const NewGameContainer = ({ room_id }) => {
           </div>
         </div>
       </Container>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={open}
-        autoHideDuration={3000}
-        onClose={() => setOpen(false)}
-        message="同步成功"
-      />
     </>
   );
 };
