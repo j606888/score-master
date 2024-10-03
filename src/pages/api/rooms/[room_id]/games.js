@@ -94,7 +94,8 @@ function _transformGamesToExcelData(games) {
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
+        timeZone: 'Asia/Taipei'
       }).replace(/(\d+)\/(\d+)\/(\d+)/, '$3/$1/$2')
     };
     playerMap.forEach((name, id) => {
