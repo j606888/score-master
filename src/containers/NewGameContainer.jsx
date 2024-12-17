@@ -1,4 +1,5 @@
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
+
 import styled from "styled-components";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
@@ -13,6 +14,7 @@ const NewGameContainer = ({ room_id }) => {
   const [playerScores, setPlayerScores] = useState({});
   const { sendMessage, closeWindow } = useLiff();
   const [isLoading, setIsLoading] = useState(false);
+  const [forceSubmit, setForceSubmit] = useState(false);
 
   useEffect(() => {
     if (isLoading || isDraftLoading) return
@@ -81,6 +83,8 @@ const NewGameContainer = ({ room_id }) => {
     return <LoadingSkeleton />;
   }
 
+  const canSubmit = (forceSubmit || totalScore === 0) && !hasNonNumberScore && !isLoading
+
   return (
     <>
       <Head>
@@ -104,6 +108,11 @@ const NewGameContainer = ({ room_id }) => {
               />
             </div>
           ))}
+          <div className="player-item">
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={forceSubmit} onChange={() => setForceSubmit(!forceSubmit)} />} label="已確認總額不為零(先閃人的別按🤢)" />
+            </FormGroup>
+          </div>
         </div>
         <div className="total-score">
           <span>
@@ -113,7 +122,7 @@ const NewGameContainer = ({ room_id }) => {
             <Button variant="outlined" onClick={handleDeleteDraft}>
               清空
             </Button>
-            <Button variant="contained" onClick={handleSubmit} disabled={hasNonNumberScore || isLoading}>
+            <Button variant="contained" onClick={handleSubmit} disabled={!canSubmit}>
               送出
             </Button>
           </div>
