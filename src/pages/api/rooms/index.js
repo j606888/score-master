@@ -1,10 +1,13 @@
 import prisma from "@/db"
 
 export default async function handler(req, res) {
-  const { page, per_page } = req.query
+  const { page, per_page, skip_empty } = req.query
   const rooms = await prisma.room.findMany({
     skip: (+page - 1) * +per_page,
     take: +per_page,
+    where: {
+      ...(skip_empty ? { games: { some: {} } } : {})
+    },
     orderBy: {
       id: 'desc'
     },
