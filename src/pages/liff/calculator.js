@@ -1,10 +1,10 @@
-"use client";
-
+import Head from "next/head";
 import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import styled from "styled-components";
 import { Button } from "@mui/material";
 import Link from "next/link";
+
 const PokerCalculator = () => {
   const [defaultMoney, setDefaultMoney] = useState(2000);
   const [thousand, setThousand] = useState('');
@@ -21,8 +21,6 @@ const PokerCalculator = () => {
     const from = urlParams.get('from');
     setFrom(from);
   }, []);
-
-  console.log(from);
 
   useEffect(() => {
     const calculatedTotal =
@@ -47,112 +45,119 @@ const PokerCalculator = () => {
   }
 
   return (
-    <Container>
-      <div className="title">籌碼計算機
-        {from && (
-          <span className="back-to-game">
-            <Link href={from}>返回</Link>
-          </span>
-        )}
-      </div>
-      <div className="content">
-        <div className="space-y-2">
-          <label htmlFor="defaultMoney">本金(含東)</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="defaultMoney"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={defaultMoney}
-            onChange={(e) => setDefaultMoney(Number(e.target.value))}
-          />
+    <>
+      <Head>
+        <title>籌碼計算機</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </Head>
+      <Container>
+        <div className="title">籌碼計算機
+          {from && (
+            <span className="back-to-game">
+              <Link href={from}>返回</Link>
+            </span>
+          )}
         </div>
-        <div className="space-y-2">
-          <label htmlFor="thousand">1000</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="thousand"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={thousand}
-            onChange={(e) => setThousand(Number(e.target.value))}
-          />
+        <div className="content">
+          <div className="space-y-2">
+            <label htmlFor="defaultMoney">本金(含東)</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="defaultMoney"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={defaultMoney}
+              onChange={(e) => setDefaultMoney(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="thousand">1000</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="thousand"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={thousand}
+              onChange={(e) => setThousand(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="fiveHundred">500</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="fiveHundred"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={fiveHundred}
+              onChange={(e) => setFiveHundred(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="hundred">100</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="hundred"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={hundred}
+              onChange={(e) => setHundred(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="fifty">50</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="fifty"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={fifty}
+              onChange={(e) => setFifty(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="ten">10</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="ten"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={ten}
+              onChange={(e) => setTen(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="rebuy">Rebuy次數</label>
+            <TextField
+              fullWidth
+              size="small"
+              id="rebuy"
+              type="tel"
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={rebuy}
+              onChange={(e) => setRebuy(Number(e.target.value))}
+            />
+          </div>
+          <div className="result">
+            <p
+              className={`text-lg font-semibold ${
+                winLoseAmount >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {winLoseAmount >= 0 ? "Win" : "Lose"} Amount: $
+              {Math.abs(winLoseAmount).toLocaleString()}
+            </p>
+            <Button size='small' variant="contained" color="primary" onClick={handleReset}>Reset</Button>
+          </div>
         </div>
-        <div className="space-y-2">
-          <label htmlFor="fiveHundred">500</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="fiveHundred"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={fiveHundred}
-            onChange={(e) => setFiveHundred(Number(e.target.value))}
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="hundred">100</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="hundred"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={hundred}
-            onChange={(e) => setHundred(Number(e.target.value))}
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="fifty">50</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="fifty"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={fifty}
-            onChange={(e) => setFifty(Number(e.target.value))}
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="ten">10</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="ten"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={ten}
-            onChange={(e) => setTen(Number(e.target.value))}
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="rebuy">Rebuy次數</label>
-          <TextField
-            fullWidth
-            size="small"
-            id="rebuy"
-            type="tel"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={rebuy}
-            onChange={(e) => setRebuy(Number(e.target.value))}
-          />
-        </div>
-        <div className="result">
-          <p
-            className={`text-lg font-semibold ${
-              winLoseAmount >= 0 ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {winLoseAmount >= 0 ? "Win" : "Lose"} Amount: $
-            {Math.abs(winLoseAmount).toLocaleString()}
-          </p>
-          <Button size='small' variant="contained" color="primary" onClick={handleReset}>Reset</Button>
-        </div>
-      </div>
-    </Container>
+      </Container>
+    </>
+
   );
 };
 
