@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import styled from "styled-components";
 import { Button } from "@mui/material";
-import Link from "next/link";
 
 const PokerCalculator = () => {
   const [defaultMoney, setDefaultMoney] = useState(2000);
@@ -14,13 +13,6 @@ const PokerCalculator = () => {
   const [ten, setTen] = useState('');
   const [rebuy, setRebuy] = useState('');
   const [winLoseAmount, setWinLoseAmount] = useState(0);
-  const [from, setFrom] = useState('');
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const from = urlParams.get('from');
-    setFrom(from);
-  }, []);
 
   useEffect(() => {
     const calculatedTotal =
@@ -51,13 +43,6 @@ const PokerCalculator = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
       <Container>
-        <div className="title">籌碼計算機
-          {from && (
-            <span className="back-to-game">
-              <Link href={from}>返回</Link>
-            </span>
-          )}
-        </div>
         <div className="content">
           <div className="space-y-2">
             <label htmlFor="defaultMoney">本金(含東)</label>
