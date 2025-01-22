@@ -24,7 +24,8 @@ export default async function handler(req, res) {
           records: undefined
         };
       });
-      res.status(200).json({ players: playersWithTotalScore });
+      const sortedPlayers = playersWithTotalScore.sort((a, b) => b.total_score - a.total_score);
+      res.status(200).json({ players: sortedPlayers });
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).json({ error: 'Failed to fetch users' });

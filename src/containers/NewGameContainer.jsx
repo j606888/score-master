@@ -15,6 +15,7 @@ const NewGameContainer = ({ room_id }) => {
   const { sendMessage, closeWindow } = useLiff();
   const [isLoading, setIsLoading] = useState(false);
   const [forceSubmit, setForceSubmit] = useState(false);
+  const [hasEdit, setHasEdit] = useState(false);
 
   useEffect(() => {
     if (isLoading || isDraftLoading) return
@@ -34,7 +35,7 @@ const NewGameContainer = ({ room_id }) => {
       ...prevScores,
       [playerId]: score,
     }));
-
+    setHasEdit(true);
     syncPlayerScore(playerId, score)
   };
 
@@ -75,6 +76,7 @@ const NewGameContainer = ({ room_id }) => {
   }
 
   const handleDeleteDraft = async () => {
+    setHasEdit(false);
     await deleteDraft(room_id)
     setPlayerScores({})
   }
@@ -83,7 +85,7 @@ const NewGameContainer = ({ room_id }) => {
     return <LoadingSkeleton />;
   }
 
-  const canSubmit = (forceSubmit || totalScore === 0) && !hasNonNumberScore && !isLoading
+  const canSubmit = (forceSubmit || totalScore === 0) && !hasNonNumberScore && !isLoading && hasEdit
 
   return (
     <>
@@ -92,6 +94,16 @@ const NewGameContainer = ({ room_id }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
       <Container>
+        <div className="calculator-link">
+          <span className='new-feature'>New</span>
+          <Button
+            variant="outlined"
+            onClick={() => window.location.href = `/liff/calculator?from=${window.location.pathname}`}
+          >
+            籌碼計算機
+          </Button>
+        </div>
+        
         <div className="player-list">
           {data?.players.map((player) => (
             <div className="player-item" key={player.id}>
@@ -138,7 +150,7 @@ const Container = styled.div`
   .player-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     margin-bottom: 64px;
   }
 
@@ -174,6 +186,25 @@ const Container = styled.div`
     span {
       padding-left: 12px;
     }
+  }
+
+  .calculator-link {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .new-feature {
+    background: #E74C3C;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin-right: 8px;
+    font-size: 12px;
+    font-weight: bold;
   }
 `;
 
