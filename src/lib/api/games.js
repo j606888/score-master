@@ -10,16 +10,25 @@ export const createGame = async (room_id, records) => {
   }
 }
 
-export const syncDraft = async (room_id, player_id, score) => {
+export const createDraft = async (room_id, player_id, score) => {
   try {
-    await axiosClient.put(`/rooms/${room_id}/drafts`, { player_id, score })
+    await axiosClient.post(`/rooms/${room_id}/drafts`, { player_id, score })
   } catch (error) {
     console.error(error)
     throw error
   }
 }
 
-export const deleteDraft = async (room_id) => {
+export const deleteDraft = async (room_id, id) => {
+  try {
+    await axiosClient.delete(`/rooms/${room_id}/drafts/${id}`)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+export const deleteAllDraft = async (room_id) => {
   try {
     await axiosClient.delete(`/rooms/${room_id}/drafts`)
   } catch (error) {
