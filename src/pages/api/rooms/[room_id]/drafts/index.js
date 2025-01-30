@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         room_id: +room_id
       }
     })
-  
+
     res.status(200).json(draftRecords)
   }
 
