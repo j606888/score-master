@@ -99,7 +99,7 @@ const NewGameContainer = ({ room_id }) => {
           <span className='new-feature'>New</span>
           <Button
             variant="outlined"
-            onClick={() => window.location.href = `/liff/calculator?from=${window.location.pathname}`}
+            onClick={() => window.location.href = `/liff/rooms/${room_id}/calculator?from=${window.location.pathname}`}
           >
             籌碼計算機
           </Button>

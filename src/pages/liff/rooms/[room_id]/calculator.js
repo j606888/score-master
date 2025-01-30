@@ -2,9 +2,22 @@ import Head from "next/head";
 import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import styled from "styled-components";
-import { Button } from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import useSWR from "swr";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { createDraft } from "@/lib/api/games";
 
-const PokerCalculator = () => {
+export async function getServerSideProps(context) {
+  const { room_id } = context.params;
+
+  return {
+    props: { room_id: Number(room_id) },
+  };
+}
+
+const PokerCalculator = ({ room_id }) => {
+  const { data, isLoading: isPlayersLoading } = useSWR(`/api/rooms/${room_id}/players`)
+  const [playerId, setPlayerId] = useState(null);
   const [defaultMoney, setDefaultMoney] = useState(2000);
   const [thousand, setThousand] = useState('');
   const [fiveHundred, setFiveHundred] = useState('');
@@ -35,6 +48,13 @@ const PokerCalculator = () => {
     setTen('');
     setRebuy('');
   }
+
+  const handleAddTo = async () => {
+    await createDraft(room_id, playerId, winLoseAmount);
+    window.location.href = `/liff/rooms/${room_id}/games/new`;
+  }
+
+  if (isPlayersLoading) return <LoadingSkeleton />
 
   return (
     <>
@@ -130,14 +150,30 @@ const PokerCalculator = () => {
           </div>
           <div className="result">
             <p
-              className={`text-lg font-semibold ${
-                winLoseAmount >= 0 ? "text-green-600" : "text-red-600"
-              }`}
+              className={`text-lg font-semibold ${winLoseAmount >= 0 ? "text-green-600" : "text-red-600"
+                }`}
             >
               {winLoseAmount >= 0 ? "Win" : "Lose"} Amount: $
               {Math.abs(winLoseAmount).toLocaleString()}
             </p>
-            <Button size='small' variant="contained" color="primary" onClick={handleReset}>Reset</Button>
+            <Button variant='outlined' size='small' color="primary" onClick={handleReset}>Reset</Button>
+          </div>
+          <div className='add-to'>
+            <FormControl sx={{ minWidth: 160 }} size="small">
+              <InputLabel>玩家</InputLabel>
+              <Select
+                label="玩家"
+                value={playerId || ''}
+                onChange={(e) => setPlayerId(e.target.value)}
+              >
+                {data?.players.map((player) => (
+                  <MenuItem key={player.id} value={player.id}>
+                    {player.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button variant='contained' color="primary" onClick={handleAddTo} disabled={!playerId}>新增</Button>
           </div>
         </div>
       </Container>
@@ -212,6 +248,14 @@ const Container = styled.div`
 
   .text-red-600 {
     color: #ef4444;
+  }
+
+  .add-to {
+    margin-top: 12px;
+    gap: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 `;
 
