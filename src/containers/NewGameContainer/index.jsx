@@ -1,43 +1,32 @@
-import { TextField, Button, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
+import { TextField, Button, Checkbox, FormGroup, FormControlLabel, Divider, IconButton } from "@mui/material";
 
 import styled from "styled-components";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 import useLiff from "@/hooks/useLiff";
 import Head from "next/head";
-import { createGame, syncDraft, deleteDraft } from "@/lib/api/games";
+import { createGame, createDraft, deleteAllDraft, deleteDraft } from "@/lib/api/games";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import NewRecord from "./NewRecord";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const NewGameContainer = ({ room_id }) => {
   const { data, isLoading: isPlayersLoading } = useSWR(`/api/rooms/${room_id}/players`)
   const { data: draftData, isLoading: isDraftLoading, mutate: mutateDraft } = useSWR(`/api/rooms/${room_id}/drafts`)
-  const [playerScores, setPlayerScores] = useState({});
   const { sendMessage, closeWindow } = useLiff();
   const [isLoading, setIsLoading] = useState(false);
   const [forceSubmit, setForceSubmit] = useState(false);
-  const [hasEdit, setHasEdit] = useState(false);
 
   useEffect(() => {
     if (isLoading || isDraftLoading) return
-    if (draftData) {
-      setPlayerScores(draftData)
-    }
+
   }, [draftData, isLoading, isDraftLoading]);
 
-  const syncPlayerScore = useCallback(async(playerId, score) => {
+  const createDraftRecord = useCallback(async(playerId, score) => {
     const draftScore = score === "" ? null : Number(score); // Use null to delete the draft
-    await syncDraft(room_id, playerId, draftScore);
+    await createDraft(room_id, playerId, draftScore);
     
   }, [room_id]);
-
-  const handleScoreChange = (playerId, score) => {
-    setPlayerScores((prevScores) => ({
-      ...prevScores,
-      [playerId]: score,
-    }));
-    setHasEdit(true);
-    syncPlayerScore(playerId, score)
-  };
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
@@ -47,15 +36,10 @@ const NewGameContainer = ({ room_id }) => {
     return () => clearInterval(intervalId);
   }, [mutateDraft]);
 
-  const hasNonNumberScore = useMemo(() => {
-    return Object.values(playerScores).some(score => {
-      return isNaN(Number(score)) && score !== "";
-    });
-  }, [playerScores]);
-
   const totalScore = useMemo(() => {
-    return Object.values(playerScores).reduce((sum, score) => sum + (Number(score) || 0), 0);
-  }, [playerScores]);
+    if (!draftData) return 0
+    return draftData.reduce((sum, draft) => sum + (Number(draft.score) || 0), 0);
+  }, [draftData]);
 
   const handleSubmit = async () => {
     if (totalScore !== 0) {
@@ -63,29 +47,46 @@ const NewGameContainer = ({ room_id }) => {
       if (!confirm(confirmMessage)) return
     }
     setIsLoading(true);
-    const records = Object.entries(playerScores).map(([playerId, score]) => ({
-      player_id: Number(playerId),
-      score: Number(score) || 0,
-    }));
+    const records = draftData.reduce((acc, draft) => {
+      const existingRecord = acc.find(record => record.player_id === draft.player_id);
+      if (existingRecord) {
+        existingRecord.score += Number(draft.score) || 0;
+      } else {
+        acc.push({
+          player_id: draft.player_id,
+          score: Number(draft.score) || 0
+        });
+      }
+      return acc;
+    }, []);
 
     await createGame(room_id, records)
-    await handleDeleteDraft()
+    await handleDeleteAllDraft()
     await sendMessage("紀錄成功");
     await sendMessage("麻將");
     closeWindow();
   }
 
-  const handleDeleteDraft = async () => {
-    setHasEdit(false);
-    await deleteDraft(room_id)
-    setPlayerScores({})
+  const handleDeleteAllDraft = async () => {
+    await deleteAllDraft(room_id)
+    await mutateDraft()
+  }
+
+  const handleNewRecord = async (playerId, score) => {
+    await createDraftRecord(playerId, score)
+    await mutateDraft()
+  }
+
+  const handleDeleteDraft = async (id) => {
+    await deleteDraft(room_id, id)
+    await mutateDraft()
   }
 
   if (isPlayersLoading || isDraftLoading) {
     return <LoadingSkeleton />;
   }
 
-  const canSubmit = (forceSubmit || totalScore === 0) && !hasNonNumberScore && !isLoading && hasEdit
+  const canSubmit = (forceSubmit || totalScore === 0) && !isLoading && draftData?.length > 0
 
   return (
     <>
@@ -98,26 +99,30 @@ const NewGameContainer = ({ room_id }) => {
           <span className='new-feature'>New</span>
           <Button
             variant="outlined"
-            onClick={() => window.location.href = `/liff/calculator?from=${window.location.pathname}`}
+            onClick={() => window.location.href = `/liff/rooms/${room_id}/calculator?from=${window.location.pathname}`}
           >
             籌碼計算機
           </Button>
         </div>
         
         <div className="player-list">
-          {data?.players.map((player) => (
-            <div className="player-item" key={player.id}>
+          <NewRecord players={data?.players} onSubmit={handleNewRecord} />
+          <Divider  />
+          {draftData?.map(draft => (
+            <div className="player-item" key={draft.id}>
               <div className="player-name">
-                <span>{player.name}</span>
+                <span>{data?.players.find(player => player.id === draft.player_id).name}</span>
               </div>
               <TextField
                 variant="outlined"
                 type="number"
                 size="small"
-                value={playerScores[player.id] || ""}
-                onChange={(e) => handleScoreChange(player.id, e.target.value)}
-                error={playerScores[player.id] && isNaN(Number(playerScores[player.id]))}
+                value={draft.score}
+                disabled
               />
+              <IconButton onClick={() => handleDeleteDraft(draft.id)}>
+                <DeleteIcon />
+              </IconButton>
             </div>
           ))}
           <div className="player-item">
@@ -131,7 +136,7 @@ const NewGameContainer = ({ room_id }) => {
             總額: {totalScore}
           </span>
           <div className="button-group">
-            <Button variant="outlined" onClick={handleDeleteDraft}>
+            <Button variant="outlined" onClick={handleDeleteAllDraft}>
               清空
             </Button>
             <Button variant="contained" onClick={handleSubmit} disabled={!canSubmit}>
@@ -158,10 +163,11 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 12px;
   }
 
   .player-name {
-    width: 120px;
+    width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
