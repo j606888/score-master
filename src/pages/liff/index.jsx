@@ -1,15 +1,12 @@
 import Head from "next/head";
 import React, { useEffect } from "react";
 import liff from "@line/liff";
-import styled from 'styled-components'
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 const LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID
 
 const LiffDemo = () => {
-
   useEffect(() => {
-    console.log('LIFF_ID', LIFF_ID)
     liff.init({
       liffId: LIFF_ID,
     }).then(() => {
@@ -24,8 +21,6 @@ const LiffDemo = () => {
       console.log("LIFF init failed");
       console.error(error);
     });
-
-    console.log("done")
   }, []);
 
   return (
@@ -37,18 +32,5 @@ const LiffDemo = () => {
     </>
   );
 };
-
-const Container = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 24px;
-`
 
 export default LiffDemo;
