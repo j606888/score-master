@@ -12,6 +12,7 @@ export default async function menu(room) {
     }
   })
 
+  const addUserUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/players/new`
   const settingUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/settings`
   const newGameUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games/new`
   const allGamesUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games`
