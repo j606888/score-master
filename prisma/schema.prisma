@@ -35,6 +35,8 @@ model LineSource {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
+  roomMaps     RoomMap[]
+
   @@map("line_sources")
 }
 
@@ -68,10 +70,13 @@ model Record {
 
 model RoomMap {
   id             BigInt   @id @default(autoincrement())
-  line_source_id Int?
-  room_id        Int?
+  line_source_id BigInt?
+  room_id        BigInt?
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
+
+  lineSource     LineSource? @relation(fields: [line_source_id], references: [id])
+  room           Room?       @relation(fields: [room_id], references: [id])
 
   @@map("room_maps")
 }
@@ -85,7 +90,7 @@ model Room {
   games      Game[]
   players    Player[]
   draft_records DraftRecord[]
-
+  roomMaps     RoomMap[]
   @@map("rooms")
 }
 

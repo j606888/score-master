@@ -12,7 +12,7 @@ export default async function menu(room) {
     }
   })
 
-  const addUserUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/players/new`
+  const settingUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/settings`
   const newGameUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games/new`
   const allGamesUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games`
 
@@ -30,10 +30,10 @@ export default async function menu(room) {
   }));
   const sortedPlayers = playersWithTotalScore.sort((a, b) => b.totalScore - a.totalScore);
   const playerList = sortedPlayers.map(player => playerBlock(player))
-  return menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl);
+  return menuJSON(room, playerList, newGameUrl, allGamesUrl, settingUrl);
 }
 
-function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
+function menuJSON(room, playerList, newGameUrl, allGamesUrl, settingUrl) {
   return {
     "type": "flex",
     "altText": "Menu",
@@ -111,7 +111,6 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
         "contents": [
           {
             "type": "separator",
-            
           },
           {
             "type": "box",
@@ -120,12 +119,12 @@ function menuJSON(room, playerList, addUserUrl, newGameUrl, allGamesUrl) {
             "contents": [
               {
                 "type": "text",
-                "text": "新增玩家",
+                "text": "更多設定",
                 "align": "center",
                 "color": "#16423C",
                 "action": {
                   "type": "uri",
-                  "uri": addUserUrl
+                  "uri": settingUrl
                 }
               },
               {
