@@ -24,7 +24,14 @@ export async function replyToMessage(replyToken, messages) {
     const response = await axios(webhookOptions);
     return response.data;
   } catch (error) {
-    console.error('Error:', error);
+    // 不要記整個 error：error.config.headers 內含 Authorization token
+    console.error('LINE reply failed:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      requestId: error.response?.headers?.['x-line-request-id'],
+      code: error.code,
+      message: error.message,
+    });
     throw error;
   }
 }

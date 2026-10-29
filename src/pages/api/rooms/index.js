@@ -1,10 +1,12 @@
 import prisma from "@/db"
 
 export default async function handler(req, res) {
-  const { page, per_page, skip_empty } = req.query
+  const { skip_empty } = req.query
+  const page = clampInt(req.query.page, 1, 1, Number.MAX_SAFE_INTEGER)
+  const perPage = clampInt(req.query.per_page, 10, 1, 50)
   const rooms = await prisma.room.findMany({
-    skip: (+page - 1) * +per_page,
-    take: +per_page,
+    skip: (page - 1) * perPage,
+    take: perPage,
     where: {
       ...(skip_empty ? { games: { some: {} } } : {})
     },
@@ -31,4 +33,10 @@ export default async function handler(req, res) {
     gamesCount: room._count.games
   }));
   res.status(200).json(formattedRooms);
+}
+
+function clampInt(value, fallback, min, max) {
+  const n = parseInt(value, 10)
+  if (Number.isNaN(n)) return fallback
+  return Math.min(Math.max(n, min), max)
 }
