@@ -1,6 +1,7 @@
 import prisma from "@/db";
+import { withRoomAccess } from "@/lib/roomAccess";
 
-export default async function handler(req, res) {
+export default withRoomAccess(async function handler(req, res) {
   const { room_id } = req.query;
 
   if (req.method === 'GET') {
@@ -51,4 +52,4 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to create user' });
     }
   }
-}
+})

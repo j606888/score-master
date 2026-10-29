@@ -1,4 +1,5 @@
 import prisma from "@/db"
+import { roomPageUrl } from "@/lib/roomAccess"
 
 export default async function handler(req, res) {
   const { skip_empty } = req.query
@@ -30,7 +31,8 @@ export default async function handler(req, res) {
     id: room.id,
     name: room.name,
     playersCount: room._count.players,
-    gamesCount: room._count.games
+    gamesCount: room._count.games,
+    gamesUrl: roomPageUrl(room.id, "games")
   }));
   res.status(200).json(formattedRooms);
 }

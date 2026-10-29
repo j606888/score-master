@@ -1,11 +1,8 @@
 import NewGameContainer from '@/containers/NewGameContainer';
+import { getRoomPageProps } from "@/lib/roomAccess";
 
 export async function getServerSideProps(context) {
-  const { room_id } = context.params;
-  
-  return {
-    props: { room_id: Number(room_id) },
-  };
+  return getRoomPageProps(context);
 }
 
 const NewGamePage = ({ room_id }) => {

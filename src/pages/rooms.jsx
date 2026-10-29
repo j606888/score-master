@@ -46,7 +46,7 @@ export default function RoomsPage() {
             <TableRow key={room.id} sx={{ hover: { cursor: 'pointer', backgroundColor: 'lightgray' } }}>
               <TableCell>{room.id}</TableCell>
               <TableCell>
-                <a href={`/liff/rooms/${room.id}/games`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <a href={room.gamesUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
                   {room.name}
                 </a>
               </TableCell>

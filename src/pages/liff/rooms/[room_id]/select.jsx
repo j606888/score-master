@@ -6,12 +6,10 @@ import CheckIcon from "@mui/icons-material/Check";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import useSWR from 'swr';
 import { createRoom, updateActiveRoom } from "@/lib/api/rooms";
+import { getRoomPageProps } from "@/lib/roomAccess";
 
 export async function getServerSideProps(context) {
-  const { room_id } = context.params;
-  return {
-    props: { room_id: Number(room_id) },
-  };
+  return getRoomPageProps(context);
 }
 
 const SelectPage = ({ room_id }) => {

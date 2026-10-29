@@ -6,13 +6,10 @@ import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material
 import useSWR from "swr";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { createDraft } from "@/lib/api/games";
+import { getRoomPageProps } from "@/lib/roomAccess";
 
 export async function getServerSideProps(context) {
-  const { room_id } = context.params;
-
-  return {
-    props: { room_id: Number(room_id) },
-  };
+  return getRoomPageProps(context);
 }
 
 const PokerCalculator = ({ room_id }) => {

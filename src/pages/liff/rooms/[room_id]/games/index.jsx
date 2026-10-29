@@ -1,12 +1,9 @@
 import React from 'react'
 import GameTableContainer from '@/containers/GameTableContainer';
+import { getRoomPageProps } from "@/lib/roomAccess";
 
 export async function getServerSideProps(context) {
-  const { room_id } = context.params
-  
-  return {
-    props: { room_id: Number(room_id) },
-  }
+  return getRoomPageProps(context);
 }
 
 const GameTablePage = ({ room_id }) => {

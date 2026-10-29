@@ -1,7 +1,8 @@
 import prisma from "@/db"
+import { withRoomAccess } from "@/lib/roomAccess"
 
 // records = [ { id: 1, score: 100 }]
-export default async function handler(req, res) {
+export default withRoomAccess(async function handler(req, res, room) {
   const { room_id } = req.query
 
   if (req.method === 'GET') {
@@ -28,37 +29,61 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { records } = req.body
 
-    const game = await prisma.game.create({
-      data: {
-        room_id: Number(room_id),
-        recorded_at: new Date(),
-      }
-    })
+    if (!Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({ error: 'records is required' });
+    }
+
+    // 每個 player_id 都必須屬於這個房間
+    const playerIds = [...new Set(records.map(record => Number(record.player_id)))];
+    if (playerIds.some(id => !Number.isInteger(id))) {
+      return res.status(400).json({ error: 'Invalid player_id' });
+    }
+    if (records.some(record => !Number.isInteger(Number(record.score)))) {
+      return res.status(400).json({ error: 'Invalid score' });
+    }
+    const playerCount = await prisma.player.count({
+      where: { id: { in: playerIds }, room_id: room.id }
+    });
+    if (playerCount !== playerIds.length) {
+      return res.status(400).json({ error: 'Player does not belong to this room' });
+    }
 
     try {
-      const createdRecords = await Promise.all(records.map(async (record) => {
-        return await prisma.record.create({
+      // Game、Record、gian_count 一起成功或一起失敗，避免留下沒有分數的 Game
+      const createdRecords = await prisma.$transaction(async (tx) => {
+        const game = await tx.game.create({
           data: {
-            game_id: Number(game.id),
-            player_id: Number(record.player_id),
-            score: Number(record.score),
-            created_at: new Date(),
-            updated_at: new Date(),
-          },
-        });
-      }));
-
-      // Update gian_count for all players in the records
-      await Promise.all(records.map(async (record) => {
-        await prisma.player.update({
-          where: { id: Number(record.player_id) },
-          data: {
-            gian_count: {
-              increment: 1
-            }
+            room_id: Number(room_id),
+            recorded_at: new Date(),
           }
-        });
-      }));
+        })
+
+        const created = await Promise.all(records.map(async (record) => {
+          return await tx.record.create({
+            data: {
+              game_id: Number(game.id),
+              player_id: Number(record.player_id),
+              score: Number(record.score),
+              created_at: new Date(),
+              updated_at: new Date(),
+            },
+          });
+        }));
+
+        // Update gian_count for all players in the records
+        await Promise.all(records.map(async (record) => {
+          await tx.player.update({
+            where: { id: Number(record.player_id) },
+            data: {
+              gian_count: {
+                increment: 1
+              }
+            }
+          });
+        }));
+
+        return created;
+      });
 
       res.status(201).json({ message: 'Records created successfully', records: createdRecords });
     } catch (error) {
@@ -66,7 +91,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to create records' });
     }
   }
-}
+})
 
 function _transformGamesToExcelData(games) {
   const playerMap = new Map();

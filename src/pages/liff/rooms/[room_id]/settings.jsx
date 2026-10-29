@@ -1,11 +1,9 @@
 import styled from "styled-components";
 import Head from "next/head";
+import { getRoomPageProps } from "@/lib/roomAccess";
 
 export async function getServerSideProps(context) {
-  const { room_id } = context.params;
-  return {
-    props: { room_id: Number(room_id) },
-  };
+  return getRoomPageProps(context);
 }
 
 const SettingsPage = ({ room_id }) => {

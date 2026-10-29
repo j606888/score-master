@@ -1,6 +1,5 @@
 import prisma from "@/db";
-
-const LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID
+import { roomLiffUrl } from "@/lib/roomAccess";
 
 export default async function menu(room) {
   const players = await prisma.player.findMany({
@@ -12,10 +11,10 @@ export default async function menu(room) {
     }
   })
 
-  const addUserUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/players/new`
-  const settingUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/settings`
-  const newGameUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games/new`
-  const allGamesUrl = `https://liff.line.me/${LIFF_ID}/rooms/${room.id}/games`
+  const addUserUrl = roomLiffUrl(room.id, "players/new")
+  const settingUrl = roomLiffUrl(room.id, "settings")
+  const newGameUrl = roomLiffUrl(room.id, "games/new")
+  const allGamesUrl = roomLiffUrl(room.id, "games")
 
   if (players.length === 0) {
     return {
