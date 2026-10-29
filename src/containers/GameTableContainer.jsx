@@ -2,14 +2,18 @@ import React, { useMemo, useState } from 'react';
 import Head from 'next/head';
 import styled from 'styled-components';
 import useSWR from 'swr';
+import { useRouter } from 'next/router';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import PageHeader, { COLORS } from '@/components/PageHeader';
+import ScoreKLine, { buildCandles } from '@/components/ScoreKLine';
 import { formatScore, formatGameTime } from '@/utils/format';
 
 function GamesTableContainer({ room_id }) {
   const { data, isLoading } = useSWR(`/api/rooms/${room_id}/games`)
   const { data: settings } = useSWR(`/api/rooms/${room_id}/settings`)
-  const [filter, setFilter] = useState(null)
+  const router = useRouter()
+  // 從戰績選單點名字進來會帶 ?player=
+  const [selectedPlayer, setSelectedPlayer] = useState(() => Number(router.query.player) || null)
 
   const games = useMemo(() => data?.games || [], [data])
 
@@ -23,6 +27,9 @@ function GamesTableContainer({ room_id }) {
     }))
     return [...counts.values()].sort((a, b) => b.count - a.count)
   }, [games])
+
+  const filter = filterPlayers.some(player => player.id === selectedPlayer) ? selectedPlayer : null
+  const candles = useMemo(() => (filter ? buildCandles(games, filter) : []), [games, filter])
 
   if (isLoading) return <LoadingSkeleton />
 
@@ -44,13 +51,13 @@ function GamesTableContainer({ room_id }) {
       <Container>
         <PageHeader subtitle={`${settings?.name ?? ''} · 共 ${games.length} 局`} title="歷史紀錄">
           <div className="filters">
-            <button type="button" className={!filter ? 'on' : ''} onClick={() => setFilter(null)}>全部</button>
+            <button type="button" className={!filter ? 'on' : ''} onClick={() => setSelectedPlayer(null)}>全部</button>
             {filterPlayers.map(player => (
               <button
                 type="button"
                 key={player.id}
                 className={filter === player.id ? 'on' : ''}
-                onClick={() => setFilter(player.id)}
+                onClick={() => setSelectedPlayer(player.id)}
               >
                 {player.name}
               </button>
@@ -65,6 +72,7 @@ function GamesTableContainer({ room_id }) {
               <b style={{ color: filterTotal >= 0 ? COLORS.win : COLORS.lose }}> {formatScore(filterTotal)}</b>
             </p>
           )}
+          {candles.length > 0 && <ScoreKLine key={filter} candles={candles} />}
           {shown.length === 0 && <p className="empty">還沒有任何紀錄</p>}
           {shown.map(game => (
             <article key={game.id} className="game">

@@ -16,9 +16,10 @@ export function signRoom(roomId) {
     .slice(0, 22);
 }
 
-// path 例如 "games/new"
-export function roomLiffUrl(roomId, path) {
-  return `https://liff.line.me/${LIFF_ID}/rooms/${roomId}/${path}?s=${signRoom(roomId)}`;
+// path 例如 "games/new"；query 會跟簽章一起放進網址
+export function roomLiffUrl(roomId, path, query = {}) {
+  const params = new URLSearchParams({ ...query, s: signRoom(roomId) });
+  return `https://liff.line.me/${LIFF_ID}/rooms/${roomId}/${path}?${params}`;
 }
 
 export function roomPageUrl(roomId, path) {

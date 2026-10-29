@@ -13,3 +13,14 @@ export function formatGameTime(date) {
   const pad = (n) => String(n).padStart(2, "0")
   return `${d.getUTCMonth() + 1}/${d.getUTCDate()} 週${WEEKDAYS[d.getUTCDay()]} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`
 }
+
+// 牌局日：台灣時間早上 6 點換日，打過午夜仍算前一天（+8 小時再 −6 小時）
+export function gameDay(date) {
+  const d = new Date(new Date(date).getTime() + 2 * 60 * 60 * 1000)
+  const short = `${d.getUTCMonth() + 1}/${d.getUTCDate()}`
+  return {
+    key: d.toISOString().slice(0, 10),
+    short,
+    label: `${short} 週${WEEKDAYS[d.getUTCDay()]}`,
+  }
+}
