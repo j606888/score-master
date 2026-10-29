@@ -1,22 +1,21 @@
-import prisma from "@/db";
 import { roomLiffUrl } from "@/lib/roomAccess";
+import {
+  COLORS, loadStandings, header, scoreBarRow, feeRow, note,
+  primaryButton, outlineButton, gearButton, footer,
+} from "./flex";
+
+// 人很多時 bubble 會太長（且有 30KB 上限），超過的人看歷史紀錄
+const MAX_ROWS = 20;
 
 export default async function menu(room) {
-  const players = await prisma.player.findMany({
-    where: {
-      room_id: Number(room.id)
-    },
-    include: {
-      records: true
-    }
-  })
+  const { hasPlayers, ranked, idle, fees } = await loadStandings(room.id);
 
   const addUserUrl = roomLiffUrl(room.id, "players/new")
   const settingUrl = roomLiffUrl(room.id, "settings")
   const newGameUrl = roomLiffUrl(room.id, "games/new")
   const allGamesUrl = roomLiffUrl(room.id, "games")
 
-  if (players.length === 0) {
+  if (!hasPlayers) {
     return {
       type: "flex",
       altText: "Menu",
@@ -24,153 +23,52 @@ export default async function menu(room) {
     }
   }
 
-  const playersWithTotalScore = players.map(player => ({
-    ...player,
-    totalScore: player.records.reduce((sum, record) => sum + record.score, 0)
-  }));
-  const sortedPlayers = playersWithTotalScore.sort((a, b) => b.totalScore - a.totalScore);
-  const playerList = sortedPlayers.map(player => playerBlock(player))
-  return menuJSON(room, playerList, newGameUrl, allGamesUrl, settingUrl);
-}
+  const shown = ranked.slice(0, MAX_ROWS);
+  const maxAbs = Math.max(0, ...shown.map(player => Math.abs(player.totalScore)));
+  const bodyContents = shown.map(player => scoreBarRow(player.name, player.totalScore, maxAbs));
 
-function menuJSON(room, playerList, newGameUrl, allGamesUrl, settingUrl) {
-  return {
-    "type": "flex",
-    "altText": "Menu",
-    "contents": {
-      "type": "bubble",
-      "header": {
-        "type": "box",
-        "layout": "horizontal",
-        "contents": [
-          {
-            "type": "text",
-            "align": "start",
-            "color": "#16423C",
-            "weight": "bold",
-            "gravity": "center",
-            "size": "md",
-            "flex": 4,
-            "text": room.name,
-            "wrap": true,
-          },
-          {
-            "type": "button",
-            "flex": 3,
-            "action": {
-              "type": "uri",
-              "label": "紀錄",
-              "uri": newGameUrl
-            },
-            "style": "primary",
-            "color": "#16423C"
-          }
-        ]
-      },
-      "body": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-          {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "box",
-                "layout": "horizontal",
-                "contents": [
-                  {
-                    "type": "text",
-                    "text": "名稱",
-                    "flex": 5,
-                    "color": "#6A9C89"
-                  },
-                  {
-                    "type": "text",
-                    "text": "出場數",
-                    "flex": 3,
-                    "color": "#6A9C89"
-                  },
-                  {
-                    "type": "text",
-                    "text": "總分",
-                    "align": "end",
-                    "flex": 3,
-                    "color": "#6A9C89"
-                  }
-                ]
-              },
-              ...playerList
-            ]
-          }
-        ]
-      },
-      "footer": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-          {
-            "type": "separator",
-          },
-          {
-            "type": "box",
-            "layout": "horizontal",
-            "margin": "md",
-            "contents": [
-              {
-                "type": "text",
-                "text": "更多設定",
-                "align": "center",
-                "color": "#16423C",
-                "action": {
-                  "type": "uri",
-                  "uri": settingUrl
-                }
-              },
-              {
-                "type": "text",
-                "text": "查看積分",
-                "align": "center",
-                "color": "#16423C",
-                "action": {
-                  "type": "uri",
-                  "uri": allGamesUrl
-                }
-              },
-            ]
-          }
-        ],
-      }
-    }
+  if (ranked.length === 0) {
+    bodyContents.push({ type: "text", text: "還沒有任何紀錄，按「記一局」開始", size: "sm", color: COLORS.muted, wrap: true });
   }
-}
-
-
-
-function playerBlock(player) {
-  return {
-    "type": "box",
-    "layout": "horizontal",
-    "contents": [
-      {
-        "type": "text",
-        "text": player.name,
-        "flex": 5,
-        "weight": "bold"
-      },
-      {
-        "type": "text",
-        "text": String(player.gian_count),
-        "flex": 3
-      },
-      {
-        "type": "text",
-        "text": String(player.totalScore),
-        "flex": 3,
-        "align": "end",
-      }
-    ]
+  if (ranked.length > shown.length) {
+    bodyContents.push(note(`還有 ${ranked.length - shown.length} 人，請看歷史紀錄`));
   }
+  if (fees.length > 0) {
+    bodyContents.push({
+      type: "box",
+      layout: "vertical",
+      spacing: "xs",
+      margin: "md",
+      contents: fees.map(fee => feeRow(fee)),
+    });
+  }
+  if (idle.length > 0) {
+    bodyContents.push(note(`未出場：${idle.map(player => player.name).join("、")}`));
+  }
+
+  return {
+    type: "flex",
+    altText: `${room.name} 戰績`,
+    contents: {
+      type: "bubble",
+      header: header(room.name, `${ranked.length} 人出場 · 依總分排序`),
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "xs",
+        paddingTop: "12px",
+        paddingBottom: "4px",
+        paddingStart: "16px",
+        paddingEnd: "16px",
+        contents: bodyContents,
+      },
+      footer: footer([
+        primaryButton("記一局", { type: "uri", label: "記一局", uri: newGameUrl }),
+        outlineButton("歷史紀錄", { type: "uri", label: "歷史紀錄", uri: allGamesUrl }, "92px"),
+        gearButton({ type: "uri", label: "設定", uri: settingUrl }),
+      ]),
+    },
+  };
 }
 
 function newMenuJSON(addUserUrl) {
@@ -203,6 +101,7 @@ function newMenuJSON(addUserUrl) {
           "type": "button",
           "style": "primary",
           "height": "sm",
+          "color": COLORS.felt,
           "action": {
             "type": "uri",
             "label": "新增玩家",

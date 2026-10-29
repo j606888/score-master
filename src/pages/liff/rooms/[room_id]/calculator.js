@@ -7,6 +7,7 @@ import useSWR from "swr";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { createDraft } from "@/lib/api/games";
 import { getRoomPageProps } from "@/lib/roomAccess";
+import { isFee } from "@/lib/playerRole";
 
 export async function getServerSideProps(context) {
   return getRoomPageProps(context);
@@ -163,7 +164,7 @@ const PokerCalculator = ({ room_id }) => {
                 value={playerId || ''}
                 onChange={(e) => setPlayerId(e.target.value)}
               >
-                {data?.players.map((player) => (
+                {data?.players.filter((player) => !isFee(player)).map((player) => (
                   <MenuItem key={player.id} value={player.id}>
                     {player.name}
                   </MenuItem>
