@@ -25,7 +25,11 @@ export default async function menu(room) {
 
   const shown = ranked.slice(0, MAX_ROWS);
   const maxAbs = Math.max(0, ...shown.map(player => Math.abs(player.totalScore)));
-  const bodyContents = shown.map(player => scoreBarRow(player.name, player.totalScore, maxAbs));
+  // 點名字打開那個人的歷史紀錄與 K 線
+  const bodyContents = shown.map(player => ({
+    ...scoreBarRow(player.name, player.totalScore, maxAbs),
+    action: { type: "uri", label: "個人 K 線", uri: roomLiffUrl(room.id, "games", { player: player.id }) },
+  }));
 
   if (ranked.length === 0) {
     bodyContents.push({ type: "text", text: "還沒有任何紀錄，按「記一局」開始", size: "sm", color: COLORS.muted, wrap: true });
@@ -51,7 +55,7 @@ export default async function menu(room) {
     altText: `${room.name} 戰績`,
     contents: {
       type: "bubble",
-      header: header(room.name, `${ranked.length} 人出場 · 依總分排序`),
+      header: header(room.name, `${ranked.length} 人出場 · 點名字看個人 K 線`),
       body: {
         type: "box",
         layout: "vertical",

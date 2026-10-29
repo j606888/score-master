@@ -10,6 +10,7 @@ export const COLORS = {
   border: "#D5DCD8",
   line: "#EEF0EF",
   win: "#1C6B4C",
+  winBar: "#2F8A63",
   winBg: "#E1F0E8",
   lose: "#B23A26",
   loseBg: "#FBEFEC",
