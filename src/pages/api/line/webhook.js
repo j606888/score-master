@@ -82,11 +82,9 @@ export default async function handler(req, res) {
 
   try {
     const handleActionResponse = await handleAction(message, source);
-    const messages = [
-      handleActionResponse
-    ]
-
-    await replyToMessage(replyToken, messages);
+    if (handleActionResponse) {
+      await replyToMessage(replyToken, [handleActionResponse]);
+    }
   } catch (error) {
     // LINE API 的錯誤細節已在 replyToMessage 記錄；這裡不記整個 error 物件
     console.error("Webhook handling failed:", error?.name, error?.message);

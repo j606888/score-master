@@ -7,11 +7,11 @@ export const TYPES = {
   SAVE: "save",
 }
 
-export default async function buildMessage(type, room) {
+export default async function buildMessage(type, room, menuKeywords) {
   switch (type) {
     case TYPES.MENU:
       return await menu(room);
     case TYPES.SAVE:
-      return await saveSuccess(room)
+      return await saveSuccess(room, menuKeywords)
   }
 }

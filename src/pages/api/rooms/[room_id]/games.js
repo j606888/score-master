@@ -1,5 +1,6 @@
 import prisma from "@/db"
 import { withRoomAccess } from "@/lib/roomAccess"
+import { isFee } from "@/lib/playerRole"
 
 // records = [ { id: 1, score: 100 }]
 export default withRoomAccess(async function handler(req, res, room) {
@@ -18,12 +19,24 @@ export default withRoomAccess(async function handler(req, res, room) {
         }
       },
       orderBy: {
-        recorded_at: 'desc'
+        id: 'desc'
       }
     })
 
-    const excelData = _transformGamesToExcelData(games);
-    res.status(200).json(excelData)
+    res.status(200).json({
+      games: games.map(game => ({
+        id: game.id,
+        recorded_at: game.recorded_at || game.created_at,
+        records: game.records
+          .map(record => ({
+            player_id: record.player_id,
+            name: record.player?.name,
+            fee: isFee(record.player),
+            score: record.score || 0,
+          }))
+          .sort((a, b) => b.score - a.score)
+      }))
+    })
   }
 
   if (req.method === 'POST') {
@@ -41,11 +54,16 @@ export default withRoomAccess(async function handler(req, res, room) {
     if (records.some(record => !Number.isInteger(Number(record.score)))) {
       return res.status(400).json({ error: 'Invalid score' });
     }
-    const playerCount = await prisma.player.count({
+    const players = await prisma.player.findMany({
       where: { id: { in: playerIds }, room_id: room.id }
     });
-    if (playerCount !== playerIds.length) {
+    if (players.length !== playerIds.length) {
       return res.status(400).json({ error: 'Player does not belong to this room' });
+    }
+    // 場地費只收不輸
+    const feeIds = new Set(players.filter(isFee).map(player => Number(player.id)));
+    if (records.some(record => feeIds.has(Number(record.player_id)) && Number(record.score) < 0)) {
+      return res.status(400).json({ error: 'Fee cannot be negative' });
     }
 
     try {
@@ -70,8 +88,8 @@ export default withRoomAccess(async function handler(req, res, room) {
           });
         }));
 
-        // Update gian_count for all players in the records
-        await Promise.all(records.map(async (record) => {
+        // 場地費不算出場數
+        await Promise.all(records.filter(record => !feeIds.has(Number(record.player_id))).map(async (record) => {
           await tx.player.update({
             where: { id: Number(record.player_id) },
             data: {
@@ -92,43 +110,3 @@ export default withRoomAccess(async function handler(req, res, room) {
     }
   }
 })
-
-function _transformGamesToExcelData(games) {
-  const playerMap = new Map();
-  const playerTotalScores = new Map();
-
-  games.forEach(game => game.records.forEach(record => {
-    const playerId = record.player.id;
-    playerMap.set(playerId, record.player.name);
-    playerTotalScores.set(playerId, (playerTotalScores.get(playerId) || 0) + record.score);
-  }));
-
-  const headers = [
-    ...Array.from(playerMap, ([id, name]) => ({
-      id: id.toString(),
-      label: name,
-      totalScore: playerTotalScores.get(id)
-    }))
-  ].sort((a, b) => b.totalScore - a.totalScore);
-
-  const rows = games.map(game => {
-    const row = {
-      Date: new Date(game.recorded_at).toLocaleString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Asia/Taipei'
-      }).replace(/(\d+)\/(\d+)\/(\d+)/, '$3/$1/$2')
-    };
-    playerMap.forEach((name, id) => {
-      const record = game.records.find(r => r.player.id === id);
-      row[id] = record ? record.score : null;
-    });
-    return row;
-  });
-
-  return { headers, rows };
-}

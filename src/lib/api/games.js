@@ -19,6 +19,16 @@ export const createDraft = async (room_id, player_id, score) => {
   }
 }
 
+// 覆寫這位玩家的草稿；score 為 null 時刪除
+export const setDraft = async (room_id, player_id, score) => {
+  try {
+    await axiosClient.put(`/rooms/${room_id}/drafts`, { player_id, score })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
 export const deleteDraft = async (room_id, id) => {
   try {
     await axiosClient.delete(`/rooms/${room_id}/drafts/${id}`)

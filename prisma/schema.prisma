@@ -32,6 +32,8 @@ model LineSource {
   source_type Int?
   source_id   String?  @db.VarChar
   room_id     Int?
+  // 在這個聊天室打哪些字會叫出主選單
+  menu_keywords String[] @default(["麻將", "德州"])
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
@@ -45,6 +47,8 @@ model Player {
   name       String?  @db.VarChar
   room_id    BigInt?
   gian_count Int?     @default(0)
+  // 0 = 一般玩家, 1 = 場地費（只收不輸、不列入排行）
+  role       Int      @default(0)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 

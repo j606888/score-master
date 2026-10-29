@@ -9,3 +9,12 @@ export const addPlayer = async (room_id, player) => {
     throw error
   }
 }
+
+export const updatePlayerRole = async (room_id, id, role) => {
+  try {
+    await axiosClient.patch(`/rooms/${room_id}/players`, { id, role })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
