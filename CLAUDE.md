@@ -28,6 +28,7 @@ Import alias: `@/*` → `./src/*` (`jsconfig.json`).
 - `DATABASE_URL` — PostgreSQL connection (Prisma).
 - `LINE_ACCESS_TOKEN` — LINE Messaging API channel access token (used to reply to webhooks).
 - `NEXT_PUBLIC_LINE_LIFF_ID` — LIFF app id; used both client-side (`useLiff`) and to build `liff.line.me/...` deep links in Flex messages.
+- `POKER_LIFF_URL` — optional; LIFF link to the separate online Texas Hold'em app. When set, the menu Flex message shows an extra "線上德州撲克" button; when unset the button is hidden.
 - `APP_ENV=local` — enables verbose Prisma query logging in `src/db.js`.
 
 Deployment is on Vercel: `main` → production, `qa` → preview.

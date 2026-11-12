@@ -7,6 +7,38 @@ import {
 // 人很多時 bubble 會太長（且有 30KB 上限），超過的人看歷史紀錄
 const MAX_ROWS = 20;
 
+// 線上德州撲克是另一個 LIFF app；沒設定網址就不顯示按鈕
+const POKER_LIFF_URL = process.env.POKER_LIFF_URL;
+const POKER_COLOR = "#B8860B";
+
+function pokerButton(uri) {
+  return {
+    type: "box",
+    layout: "vertical",
+    height: "44px",
+    cornerRadius: "10px",
+    borderWidth: "1px",
+    borderColor: POKER_COLOR,
+    justifyContent: "center",
+    action: { type: "uri", label: "線上德州撲克", uri },
+    contents: [{ type: "text", text: "♠ 線上德州撲克", color: POKER_COLOR, weight: "bold", size: "sm", align: "center" }],
+  };
+}
+
+// 有撲克按鈕時 footer 變兩列：原本的按鈕一列，撲克按鈕獨立一列
+function menuFooter(buttons) {
+  const base = footer(buttons);
+  if (!POKER_LIFF_URL) return base;
+  return {
+    ...base,
+    layout: "vertical",
+    contents: [
+      { type: "box", layout: "horizontal", spacing: "sm", contents: buttons },
+      pokerButton(POKER_LIFF_URL),
+    ],
+  };
+}
+
 export default async function menu(room) {
   const { hasPlayers, ranked, idle, fees } = await loadStandings(room.id);
 
@@ -66,7 +98,7 @@ export default async function menu(room) {
         paddingEnd: "16px",
         contents: bodyContents,
       },
-      footer: footer([
+      footer: menuFooter([
         primaryButton("記一局", { type: "uri", label: "記一局", uri: newGameUrl }),
         outlineButton("歷史紀錄", { type: "uri", label: "歷史紀錄", uri: allGamesUrl }, "92px"),
         gearButton({ type: "uri", label: "設定", uri: settingUrl }),
